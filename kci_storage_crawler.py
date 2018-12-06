@@ -4,7 +4,9 @@ import re
 import sys
 import os
 import json
+import datetime
 
+# KernelCI storage site
 KCI_STORAGE_SITE = "https://storage.kernelci.org"
 
 # urls are like this
@@ -23,29 +25,29 @@ lava_result_file_regex = re.compile('lava-json-.*?\.json')
 
 # Given an url, return all hrefs
 def fetch(url, include_files = False):
-    sys.stderr.write("Fetching '%s'... " % (url))
+    log("Fetching '%s'... " % (url))
     content = urllib.request.urlopen(url).read()
 
     regex = a_href_regex if include_files else a_href_regex_include_files
     hrefs = regex.findall(str(content))
 
-    sys.stderr.write("got '%i' results\n" % (len(hrefs)))
+    log("got '%i' results" % (len(hrefs)))
     return ['%s/%s' % (url, href) for href in hrefs]
 
 # Save list to file as json
 def to_file(name, l):
     obj = {name: l}
-    sys.stderr.write("Saving %s to %s.json (%i objects)... " % (name, name, len(l)))
+    log("Saving %s to %s.json (%i objects)... " % (name, name, len(l)))
     with open('%s.json' % (name), 'w') as json_file:
         json.dump(obj, json_file)
         json_file.flush()
-    sys.stderr.write(" done\n")
+    log(" done")
 
 # Given an url, download it
 def download(url):
-    sys.stderr.write("Downloading %s... " % (url))
+    log("Downloading %s... " % (url))
     content = urllib.request.urlopen(url).read()
-    sys.stderr.write(" done")
+    log(" done")
 
     parsed_url = urlparse(url)
     path = parsed_url.path
@@ -57,14 +59,20 @@ def download(url):
     dirname = os.path.dirname(path)
     filename = os.path.basename(path)
 
-    sys.stderr.write("Saving %s to %s... " % (filename, dirname))
+    log("Saving %s to %s... " % (filename, dirname))
     os.makedirs(dirname, exist_ok = True)
     with open(path, 'w') as fd:
         fd.write(content)
         fd.flush()
-    sys.stderr.write("done")
+    log("done")
 
-sys.stderr.write("***** Crawling %s ******\n\n" % (KCI_STORAGE_SITE))
+log_file = open('kci_storage_crawler.log', 'w')
+def log(message):
+    log_file.write(str(datetime.datetime.now()))
+    log_file.write(': %s\n' % (message))
+    log_file.flush()
+    
+log("***** Crawling %s ******" % (KCI_STORAGE_SITE))
     
 # Get trees
 trees = fetch(KCI_STORAGE_SITE)
