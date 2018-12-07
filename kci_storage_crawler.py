@@ -18,10 +18,13 @@ a_href_regex = re.compile('a href="(\w.*?)/"')
 a_href_regex_include_files = re.compile('a href="(\w.*?)"')
 
 # Regex to find lab name on a url ending
-lab_regex = re.compile('lab-\w+$')
+lab_regex = re.compile('.*lab-\w+$')
 
 # Regex to find if file is a lava result in json
-lava_result_file_regex = re.compile('lava-json-.*?\.json')
+lava_result_file_regex = re.compile('.*lava-json-.*?\.json$')
+
+# Regex to filter tags for v4.20 of kernel only (narrowing down results)
+v4_20_regex = re.compile('.*v4\.20-.*')
 
 # Files to keep trees, branches, tags, archs, confs, labs, builds and results
 files = {}
@@ -101,7 +104,8 @@ def log(message):
 log("***** Crawling %s ******" % (KCI_STORAGE_SITE))
     
 # Get trees
-trees = fetch(KCI_STORAGE_SITE)
+# trees = fetch(KCI_STORAGE_SITE)
+trees = ['https://storage.kernelci.org/mainline']
 append_to_file('trees', trees)
 del trees
 
@@ -138,8 +142,9 @@ close_file('tags')
 log("Fetching archs")
 with open('tags', 'r') as tags:
     for tag in tags:
-        archs = fetch(tag)
-        append_to_file('archs', archs)
+        if v4_20_regex.match(tag):
+            archs = fetch(tag)
+            append_to_file('archs', archs)
 
         if run_once:
             break
