@@ -1,0 +1,4 @@
+- pipeline.id: testjob_pipeline
+  path.config: "/home/chaws/linaro/logstash_study/testjob_pipeline.conf"
+- pipeline.id: build_pipeline
+  path.config: "/home/chaws/linaro/logstash_study/build_pipeline.conf"
