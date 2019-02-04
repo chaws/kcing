@@ -7,8 +7,8 @@ import json
 RUN_ONCE = True
 
 ES_HOST = 'https://ochaws.com'
-ES_BOOT = os.path.join(ES_HOST, 'boot')
-ES_BUILD = os.path.join(ES_HOST, 'build')
+ES_LAVA = 'https://ochaws.com/lava'
+ES_BUILD = 'https://ochaws.com/build'
 
 KCI_URL = 'https://kernelci.org'
 STORAGE_KCI_URL = 'https://storage.kernelci.org'
@@ -17,6 +17,7 @@ AJAX_BOOT = os.path.join(KCI_URL, '_ajax', 'boot')
 QUERY_STRING = AJAX_BOOT + '?date_range=14&sort=created_on&sort_order=1&limit=%s&skip=%s&fields=arch&fields=defconfig_full&fields=git_branch&fields=job&fields=kernel&fields=lab_name'
 
 log_file = open('retrieve_boots_kci.log', 'w')
+error_file = open('retrieve_boots_kci.error', 'w')
 
 def log(msg):
     timing = time.strftime("%Y-%m-%d %H:%M:%S")
@@ -41,6 +42,8 @@ def submit_to_es(es, resource_url):
     resource_contents = res.content.decode('utf-8')
     res = requests.post(es, data = resource_contents)
     ans = res.status_code is 200
+    error_file.write(res.content.decode('utf-8'))
+    error_file.flush()
     if not ans:
         log('failed!')
 
@@ -82,7 +85,7 @@ for skip in range(0, 35000, limit):
             # Get boot file and send it to ES
             boot_file = 'lava-json-%s.json' % (boot['board'])
             boot_file_url = os.path.join(base_path(boot), boot['lab_name'], boot_file)
-            submit_to_es(ES_BOOT, boot_file_url)           
+            submit_to_es(ES_LAVA, boot_file_url)           
  
             build_file_url = os.path.join(base_path(boot), 'build.json')
             if build_file_url not in builds:
@@ -94,10 +97,10 @@ for skip in range(0, 35000, limit):
                 
     except:
         log('Could not dowload something, lets sleep for 5 secs')
-        time.sleep(5)
+        time.sleep(3)
         log('moving on')
 
-    if RUN_ONCE:
+    if skip == 1001:
         break
-
 log_file.close()
+error_file.close()
