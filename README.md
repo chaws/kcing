@@ -12,6 +12,11 @@ With a build in hand, kernelci's jenkins will queue builds for booting/testing t
 
 KCING currently acts as an alternative visualization tool for kernelci's jobs. Note from the image above that both `build.json` and `lava-*.json` files are also being sent to an extra stack. This is being worked out with kernelci developers to be available in the future. The files are received by a [Losgstash](https://www.elastic.co/products/logstash) instance, configured with [kcing_pipeline.conf]()
 
+### List of available commands
+
+- `./kcing.py test` will run available tests. For now, only `kernelci` tests are available
+- `./kcing.py gen_samples [--sample-size=N]` will attempt to download N (or last two days) boots and builds recorded in kernelci website
+
 ## Important parts of this repo
 
 - `kcing.py` is the main file, responsible for calling other scripts

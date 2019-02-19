@@ -4,17 +4,17 @@ import argparse
 import logging
 import sys
 
-
 import test_kernelci
+import samples
 
 
 logger = logging.getLogger()
-log_format = logging.Formatter('%(asctime)s - %(filename)s:%(funcName)s - %(levelname)s: %(message)s')
-log_level = logging.INFO
+logger.setLevel(logging.INFO)
+log_format = logging.Formatter('%(asctime)s - %(levelname)s - %(filename)s@%(funcName)s: %(message)s')
 
 # Consoler logger
 stdout_logger = logging.StreamHandler()
-stdout_logger.setLevel(log_level)
+stdout_logger.setLevel(logging.INFO)
 stdout_logger.setFormatter(log_format)
 logger.addHandler(stdout_logger)
 
@@ -29,36 +29,45 @@ def feed_es(args):
     logger.info('Feeding ES')
 
 
-def main(args):
-    global log_level
+def gen_samples(args):
+    logger.info('Generating sample data')
+    samples.gen(args)
 
-    if args.debug:
-        log_level = logging.DEBUG
-        logger.setLevel(log_level)
-    
+
+avail_cmds = {
+    'test': test,
+    'feed_es': feed_es,
+    'gen_samples': gen_samples,
+}
+
+
+def main(args):
     if args.log_filename:
         file_logger = logging.FileHandler(args.log_filename)
-        file_logger.setLevel(log_level)
+        file_logger.setLevel(logging.DEBUG if args.debug else logging.INFO)
         file_logger.setFormatter(log_format)
         logger.addHandler(file_logger)
 
+    if args.debug:
+        logger.setLevel(logging.DEBUG)
+        stdout_logger.setLevel(logging.DEBUG)
+        logger.debug('Debugging is on!')
 
-    if args.cmd == 'test':
-        return test(args)
-    elif args.cmd == 'feed_es':
-        return feed_es(args)
+    # Call
+    func = avail_cmds[args.cmd]
+    return func(args)
 
-    # Unknown state
-    return -1
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument("cmd", choices=['test', 'feed_es'],
+    parser.add_argument("cmd", choices=['test', 'feed_es', 'gen_samples'],
                         help="command")
     parser.add_argument("-l", "--log-filename",
                         help="logging file name")
     parser.add_argument("-d", "--debug", action='store_true',
                         help="debugging log level")
+    parser.add_argument("--sample-size", type=int, default=-1,
+                        help="how many samples to download, defaults to two past days worth of data")
     parser.add_argument("-t", "--testargs", nargs='*',
                         help="unittest args")
     args = parser.parse_args()

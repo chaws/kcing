@@ -31,7 +31,7 @@ class KernelCI(object):
     def __init__(self, max_retries=5, max_per_req=1000):
         # Browser-like client
         self.client = requests.session()
-        self.client.headers['Connection'] = 'close'
+        self.client.headers['Connection'] = 'keep-alive'
 
         self.boots = []
         self.builds = []
@@ -95,6 +95,7 @@ class KernelCI(object):
     def _get_docs(self, doc_type, date_range=2, how_many=-1):
         docs = []
         url = None
+        limit = self.max_objs_per_request
 
         if doc_type == 'boot':
             url = self.boot_url
@@ -103,11 +104,14 @@ class KernelCI(object):
         else:
             logger.error('Unknown doc_type "%s"' % (doc_type))
             return
+
+        if how_many > 0 and how_many < limit:
+            limit = how_many
         
         params = {
             'date_range': date_range,
             'skip': 0,
-            'limit': self.max_objs_per_request,
+            'limit': limit,
             'sort': 'created_on',
             'sort_order': 1,
         }
