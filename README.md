@@ -15,7 +15,7 @@ KCING currently acts as an alternative visualization tool for kernelci's jobs. N
 ### List of available commands
 
 - `./kcing.py test` will run available tests. For now, only `kernelci` tests are available
-- `./kcing.py gen_samples [--sample-size=N]` will attempt to download N (or last two days) boots and builds recorded in kernelci website
+- `./kcing.py gen_samples [--sample-size=N]` will attempt to download N (or last two days) boots and builds recorded in kernelci website. Samples are stored in `samples` directory. 
 
 ## Important parts of this repo
 

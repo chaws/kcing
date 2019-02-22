@@ -1,0 +1,14 @@
+# This is an example of a .env file use to
+# set local variables to kcing
+settings = {
+    # Kernelci
+    'KCI_SCHEME': 'https',
+    'KCI_HOST': 'kernelci.org',
+
+    # ElasticSearch
+    'ES_BOOT': 'https://your.es.instance/with/path/to/boot',
+    'ES_BUILD': 'https://your.es.instance/with/path/to/build',
+
+    # Logstash
+    'LS_HOME': '/path/to/logstash',
+}

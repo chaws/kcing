@@ -1,3 +1,9 @@
 logs/*
 __pycache__/*
+samples/*
+data/*
 *.sw*
+*.db
+.env
+ls.pid
+local_settings.py

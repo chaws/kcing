@@ -19,6 +19,7 @@ import sys
 from urllib.parse import urlencode
 
 #import models
+import settings
 
 logger = logging.getLogger()
 
@@ -37,8 +38,8 @@ class KernelCI(object):
         self.builds = []
 
         # Urls
-        self.url_scheme = 'https://'
-        self.url = 'kernelci.org'
+        self.url_scheme = settings.KCI_SCHEME + '://'
+        self.url = settings.KCI_HOST
         self.storage_url = self.url_scheme + 'storage.%s' % (self.url)
         self.url = self.url_scheme + self.url
         self.boot_url = os.path.join(self.url, '_ajax', 'boot')
@@ -92,17 +93,17 @@ class KernelCI(object):
         else:
             raise CannotContinue('Failed to retrieve new csrf token')
 
-    def _get_docs(self, doc_type, date_range=2, how_many=-1):
+    def _get_docs(self, _type, date_range=2, how_many=-1):
         docs = []
         url = None
         limit = self.max_objs_per_request
 
-        if doc_type == 'boot':
+        if _type == 'boot':
             url = self.boot_url
-        elif doc_type == 'build':
+        elif _type == 'build':
             url = self.build_url
         else:
-            logger.error('Unknown doc_type "%s"' % (doc_type))
+            logger.error('Unknown doc_type "%s"' % (_type))
             return
 
         if how_many > 0 and how_many < limit:
@@ -147,9 +148,10 @@ class KernelCI(object):
 
         return docs
 
-    def _docs_to_links(self, doc_type, how_many=-1):
+    def _docs_to_links(self, _type, how_many=-1):
         """Get a list of retrieved doc_types, links are ready to download from storage"""
-        docs = self._get_docs(doc_type, how_many=how_many)
+        logger.info('Retrieving %ss from KernelCI' % (_type))
+        docs = self._get_docs(_type, how_many=how_many)
         ready_to_download = {}
 
         for d in docs:
@@ -157,16 +159,17 @@ class KernelCI(object):
             path = d['file_server_resource']
 
             filename = ''
-            if doc_type == 'boot':
+            if _type == 'boot':
                 lab = d['lab_name']
                 filename = os.path.join(lab, 'lava-json-%s.json' % (d['board']))
-            elif doc_type == 'build':
+            elif _type == 'build':
                 filename = 'build.json'
             else:
-                raise CannotContinue('Unexpected doc_type "%s"' % (doc_type))
+                raise CannotContinue('Unexpected doc_type "%s"' % (_type))
 
             ready_to_download[_id] = os.path.join(self.storage_url, path, filename)
 
+        logger.info('Got %i' % (len(ready_to_download)))
         return ready_to_download
 
     def get_boots(self, how_many=-1):

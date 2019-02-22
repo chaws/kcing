@@ -22,43 +22,48 @@ def _client():
     return client
 
 
-def _is_sample_dir_ok():
+def _is_samples_dir_ok(samples_dir):
     # Make sure samples folder exists and is writable
-    logger.debug('Checking if %s is exists and is writable' % (SAMPLES_DIR))
+    logger.debug('Checking if %s is exists and is writable' % (samples_dir))
     try:
-        pathlib.Path(SAMPLES_DIR).mkdir(exist_ok=True)
-        if not os.access(SAMPLES_DIR, os.W_OK):
-            logger.error('"%s" needs to be writable!')
+        pathlib.Path(samples_dir).mkdir(exist_ok=True)
+        if not os.access(samples_dir, os.W_OK):
+            logger.error('"%s" needs to be writable!' % (samples_dir))
             return False
     except PermissionError:
-        logger.error('Permission denied to create "%s"')
+        logger.error('Permission denied to create "%s"' % (samples_dir))
         return False
 
     return True
 
 
-def _persist_samples(sample_type, objs):
+def _persist_samples(sample_type, objs, samples_dir):
     if len(objs) == 0:
         logger.warning('Persisting %s skipped due to empty list of objects' % (sample_type))
-        return
+        return {}, {}
 
     failed = {}
-    saved = 0
+    saved = {}
     for _id in objs.keys():
         download_link = objs[_id]
         try:
             response = _client().get(download_link)
         except:
-            logger.error('Failed to download "%s"' % (download_link))
+            logger.error('Failed to download "%s" due to connection issues' % (download_link))
+            failed[_id] = download_link
+            continue
+
+        if response.status_code != 200:
+            logger.error('Failed to download "%s" due to HTTP response: status_code = %i' % (download_link, response.status_code))
             failed[_id] = download_link
             continue
         
         file_name = '%s_%s.json' % (sample_type, _id)
         file_content = response.content.decode()
-        with open('%s/%s' % (SAMPLES_DIR, file_name), 'w') as file_handler:
+        with open('%s/%s' % (samples_dir, file_name), 'w') as file_handler:
             file_handler.write(file_content)
             logger.debug('Written %i bytes to %s' % (len(file_content), file_name))
-            saved += 1
+            saved[_id] = file_name
 
     return saved, failed
 
@@ -68,7 +73,11 @@ def gen(args):
     Download last two days worth of builds and boots from kernelci
     """
 
-    if not _is_sample_dir_ok():
+    logger.info('Generating sample data')
+
+    samples_dir = args.samples_dir or SAMPLES_DIR
+
+    if not _is_samples_dir_ok(samples_dir):
         return -1
 
     kci = KernelCI()
@@ -78,10 +87,10 @@ def gen(args):
 
     logger.info('Retrieved %i boots and %i builds from KernelCI' % (len(boots), len(builds)))
 
-    saved_boots, failed_boots = _persist_samples('boot', boots)
-    saved_builds, failed_builds = _persist_samples('build', builds)
+    saved_boots, failed_boots = _persist_samples('boot', boots, samples_dir)
+    saved_builds, failed_builds = _persist_samples('build', builds, samples_dir)
 
-    logger.info('Boots: saved %i to disk, %i failed' % (saved_boots, len(failed_boots.keys())))
-    logger.info('Builds: saved %i to disk, %i failed' % (saved_builds, len(failed_builds.keys())))
+    logger.info('Boots: saved %i to disk, %i failed' % (len(saved_boots), len(failed_boots.keys())))
+    logger.info('Builds: saved %i to disk, %i failed' % (len(saved_builds), len(failed_builds.keys())))
 
     return 0
