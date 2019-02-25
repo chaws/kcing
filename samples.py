@@ -47,6 +47,7 @@ def _persist_samples(sample_type, objs, samples_dir):
     for _id in objs.keys():
         download_link = objs[_id]
         try:
+            logger.debug('Downloading "%s"' % (download_link))
             response = _client().get(download_link)
         except:
             logger.error('Failed to download "%s" due to connection issues' % (download_link))
@@ -70,7 +71,7 @@ def _persist_samples(sample_type, objs, samples_dir):
 
 def gen(args):
     """
-    Download last two days worth of builds and boots from kernelci
+    Download last two days worth of builds and lavas from kernelci
     """
 
     logger.info('Generating sample data')
@@ -82,15 +83,15 @@ def gen(args):
 
     kci = KernelCI()
 
-    boots = kci.get_boots(how_many=args.sample_size)
+    lavas = kci.get_lavas(how_many=args.sample_size)
     builds = kci.get_builds(how_many=args.sample_size)
 
-    logger.info('Retrieved %i boots and %i builds from KernelCI' % (len(boots), len(builds)))
+    logger.info('Retrieved %i lavas and %i builds from KernelCI' % (len(lavas), len(builds)))
 
-    saved_boots, failed_boots = _persist_samples('boot', boots, samples_dir)
+    saved_lavas, failed_lavas = _persist_samples('lava', lavas, samples_dir)
     saved_builds, failed_builds = _persist_samples('build', builds, samples_dir)
 
-    logger.info('Boots: saved %i to disk, %i failed' % (len(saved_boots), len(failed_boots.keys())))
+    logger.info('Lavas: saved %i to disk, %i failed' % (len(saved_lavas), len(failed_lavas.keys())))
     logger.info('Builds: saved %i to disk, %i failed' % (len(saved_builds), len(failed_builds.keys())))
 
     return 0

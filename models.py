@@ -64,7 +64,7 @@ def save(_type, objs):
 
 def delete_old(days=None):
     """
-    The default number of days to keep boots/builds is 3. This is because
+    The default number of days to keep lava/builds is 3. This is because
     we're retrieving the last two days worth of data from KernelCI. Take this as
     example: 
     Day 1: retrieved objects 1, 2 and 3

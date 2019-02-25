@@ -16,7 +16,7 @@ KCI_HOST   = env_or_local('KCI_HOST', 'kernelci')
 KCI_SCHEME = env_or_local('KCI_SCHEME', 'https')
 
 # ES links, it's actually logstash listening to those handlers
-ES_BOOT  = env_or_local('ES_BOOT')
+ES_LAVA  = env_or_local('ES_LAVA')
 ES_BUILD = env_or_local('ES_BUILD')
 
 # If an attempt to send data to ES fails, retry for ES_MAX_RETRIES before giving up
@@ -39,7 +39,7 @@ LS_PATH_CONFIG          = env_or_local('LS_PATH_CONFIG', join(dirname(__file__),
 LS_QUEUE_MAX_EVENTS     = env_or_local('LS_QUEUE_MAX_EVENTS', 200)
 LS_PIPELINE_BATCH_SIZE  = env_or_local('LS_PIPELINE_BATCH_SIZE', 100)
 
-# Database to store progress of processed boots/builds
+# Database to store progress of processed lavas/builds
 KCING_DB = env_or_local('KCING_DB', 'kcing.db')
 
 # Number of days to keep data, 3 is a good number since we're always fetching

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Takes Kernelci boots/builds, send them to ES and save to a local sqlite
+# Takes Kernelci lavas/builds, send them to ES and save to a local sqlite
 # db, data should not be duplicated in ES
 
 import logging
@@ -19,9 +19,7 @@ logger = logging.getLogger()
 data_dir = join(dirname(__file__), 'data')
 client = None
 leftovers = None
-all_builds = []
-all_boots = []
-es_boot_url = settings.ES_BOOT
+es_lava_url = settings.ES_LAVA
 es_build_url = settings.ES_BUILD
 
 
@@ -40,10 +38,10 @@ def _client():
 
 def _load_leftovers(path=data_dir):
     global leftovers
-    leftovers = {'boot': {}, 'build': {}}
+    leftovers = {'lava': {}, 'build': {}}
     for f in listdir(path):
-        if f.startswith('boot_'):
-            _type = 'boot'
+        if f.startswith('lava_'):
+            _type = 'lava'
         elif f.startswith('build_'):
             _type = 'build'
         else:
@@ -56,11 +54,11 @@ def _load_leftovers(path=data_dir):
 
 def _download(_type, objs, path=data_dir):
 
-    # Get whatever boot/build previously downloaded
+    # Get whatever lava/build previously downloaded
     # but yet not successfully posted to ES
     _load_leftovers(path)
-    downloads = leftovers[_type] # [_id] = (build|boot)_id.json
-    logger.debug('%i %ss are already downloaded' % (len(downloads), _type))
+    downloads = leftovers[_type] # [_id] = (build|lava)_id.json
+    logger.debug('%i %s files are already downloaded' % (len(downloads), _type))
 
     # Also, get a list of objects that were posted successfully
     processed = models.all_objs(_type)
@@ -73,11 +71,11 @@ def _download(_type, objs, path=data_dir):
     for _id in fresh_ids:
         fresh_objs[_id] = objs[_id]
 
-    logger.info('Downloading %i %ss' % (len(fresh_objs), _type))
+    logger.info('Downloading %i %s files' % (len(fresh_objs), _type))
     saved, failed = samples._persist_samples(_type, fresh_objs, path)
 
     # Merge recent downloads with leftover downloads
-    logger.info('%i %ss successfully downloaded and %i failed' % (len(saved), _type, len(failed)))
+    logger.info('%i %s files successfully downloaded and %i failed' % (len(saved), _type, len(failed)))
     downloads.update(saved)
     return downloads
 
@@ -94,7 +92,7 @@ def _is_data_dir_ok(path=data_dir):
 def _is_es_ok():
     logger.info('Checking ES health')
 
-    for url in [es_boot_url, es_build_url]:
+    for url in [es_lava_url, es_build_url]:
         try:
             response = _client().get(url)
         except:
@@ -132,7 +130,7 @@ def _post(_type, file_name, path=data_dir):
         logger.error('Object %s is not a valid file' % (file_name))
         return False
 
-    es_url = settings.ES_BUILD if _type == 'build' else settings.ES_BOOT
+    es_url = es_build_url if _type == 'build' else es_lava_url
 
     file_content = ''
     with open(file_name, 'r') as file_handler:
@@ -173,7 +171,7 @@ def _send(_type, obj, path=data_dir):
 
 
 def _send_to_es(_type, objs, path=data_dir):
-    logger.info('Sending to %i %ss' % (len(objs), _type))
+    logger.info('Sending to %i %s pipeline' % (len(objs), _type))
     stats = {True: {}, False: {}}
     passed = stats[True]
     failed = stats[False]
@@ -182,7 +180,7 @@ def _send_to_es(_type, objs, path=data_dir):
     cmdline_objs = type(objs) is list
 
     if cmdline_objs:
-        logger.info('Command line detected! Duplicates might exist for %i %ss' % (len(objs), _type))
+        logger.info('Command line detected! Duplicates might exist for %i %s index' % (len(objs), _type))
         objs = {_id: objs[_id] for _id in range(0, len(objs))}
 
     for _id in objs:
@@ -229,16 +227,16 @@ def feed(args):
 
     kci = KernelCI()
 
-    # Boots and builds are already files downloaded to disk
-    boots = args.boots or _download('boot', kci.get_boots(args.how_many))
+    # lavas and builds are already files downloaded to disk
+    lavas = args.lavas or _download('lava', kci.get_lavas(args.how_many))
     builds = args.builds or _download('build', kci.get_builds(args.how_many))
 
-    logger.info('Working on %i boots and %i builds from KernelCI/command line' % (len(boots), len(builds)))
+    logger.info('Working on %i lavas and %i builds from KernelCI/command line' % (len(lavas), len(builds)))
 
-    saved_boots, failed_boots = _send_to_es('boot', boots, )
+    saved_lavas, failed_lavas = _send_to_es('lava', lavas, )
     saved_builds, failed_builds = _send_to_es('build', builds)
 
     models.end()
 
-    logger.info('Boots: sent %i to ES, %i failed' % (len(saved_boots), len(failed_boots.keys())))
+    logger.info('Lavas: sent %i to ES, %i failed' % (len(saved_lavas), len(failed_lavas.keys())))
     logger.info('Builds: sent %i to ES, %i failed' % (len(saved_builds), len(failed_builds.keys())))

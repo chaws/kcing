@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
-#This new script should keep track of which builds and boots were already processed
+#This new script should keep track of which builds and lavas were already processed
 #
 #1. Add exception handling when CSRF has expired
-#2. Save builds/boots ids into a db
+#2. Save builds/lavas ids into a db
 #2.1. this will prevent adding duplicates
-#3. Save a list of builds/boots that failed to download
+#3. Save a list of builds/lavas that failed to download
 #3.1. Attempt downloading max of 5 times
 
 import json
@@ -34,7 +34,7 @@ class KernelCI(object):
         self.client = requests.session()
         self.client.headers['Connection'] = 'keep-alive'
 
-        self.boots = []
+        self.lavas = []
         self.builds = []
 
         # Urls
@@ -98,7 +98,8 @@ class KernelCI(object):
         url = None
         limit = self.max_objs_per_request
 
-        if _type == 'boot':
+        if _type == 'lava':
+            # lava-json*.json files are obtained through a boot's file directory
             url = self.boot_url
         elif _type == 'build':
             url = self.build_url
@@ -159,7 +160,7 @@ class KernelCI(object):
             path = d['file_server_resource']
 
             filename = ''
-            if _type == 'boot':
+            if _type == 'lava':
                 lab = d['lab_name']
                 filename = os.path.join(lab, 'lava-json-%s.json' % (d['board']))
             elif _type == 'build':
@@ -172,8 +173,8 @@ class KernelCI(object):
         logger.info('Got %i' % (len(ready_to_download)))
         return ready_to_download
 
-    def get_boots(self, how_many=-1):
-        return self._docs_to_links('boot', how_many=how_many)
+    def get_lavas(self, how_many=-1):
+        return self._docs_to_links('lava', how_many=how_many)
 
     def get_builds(self, how_many=-1):
         return self._docs_to_links('build', how_many=how_many)

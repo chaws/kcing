@@ -17,27 +17,27 @@ class TestModels(unittest.TestCase):
 
     def setUp(self):
         builds = {'1': 'build1', '2': 'build2'}
-        boots = {'1': 'boot1', '2': 'boot2', '3': 'boot3'}
+        lavas = {'1': 'boot1', '2': 'boot2', '3': 'boot3'}
         save('build', builds)
-        save('boot', boots)
+        save('lava', lavas)
 
     def tearDown(self):
         delete_old(0)
 
     def test_all_objs(self):
-        boots = all_objs('boot')
+        lavas = all_objs('lava')
         builds = all_objs('build')
 
-        self.assertEqual(len(boots), 3)
+        self.assertEqual(len(lavas), 3)
         self.assertEqual(len(builds), 2)
 
     def test_delete_old(self):
         delete_old(0)
 
-        boots = all_objs('boot')
+        lavas = all_objs('lava')
         builds = all_objs('build')
 
-        self.assertEqual(len(boots), 0)
+        self.assertEqual(len(lavas), 0)
         self.assertEqual(len(builds), 0)
 
 def main():

@@ -23,7 +23,7 @@ class TestSamples(unittest.TestCase):
 
         self.args = fake_args()
 
-        self.boots = {'1': 'https://linaro.org', '2': 'https://lajlsjf234.com'}
+        self.builds = {'1': 'https://linaro.org', '2': 'https://lajlsjf234.com'}
 
     def tearDown(self):
         shutil.rmtree(self.test_dir)
@@ -33,14 +33,14 @@ class TestSamples(unittest.TestCase):
         self.assertTrue(samples._is_samples_dir_ok(self.test_dir))
 
     def test_persist_samples(self):
-        saved, failed = samples._persist_samples('boot', self.boots, self.test_dir)
+        saved, failed = samples._persist_samples('build', self.builds, self.test_dir)
         files = os.listdir(self.test_dir)
 
         self.assertEqual(len(saved), 1)
-        self.assertEqual(saved, {'1': 'boot_1.json'})
+        self.assertEqual(saved, {'1': 'build_1.json'})
         self.assertEqual(failed, {'2': 'https://lajlsjf234.com'})
         self.assertEqual(len(files), 1)
-        self.assertEqual(files, ['boot_1.json'])
+        self.assertEqual(files, ['build_1.json'])
 
     def test_gen(self):
         self.args.sample_size = 1
@@ -49,9 +49,6 @@ class TestSamples(unittest.TestCase):
         files = os.listdir(self.test_dir).sort()
 
         self.assertEqual(rc, 0)
-        #self.assertEqual(len(files), 2)
-        #self.assertTrue(files[0].startswith('boot'))
-        #self.assertTrue(files[1].startswith('build'))
         
 
 def main():

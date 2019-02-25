@@ -29,19 +29,19 @@ class TestElastic(unittest.TestCase):
         self.dir.cleanup()
 
     def test_load_leftovers(self):
-        os.mknod(join(self.dir.name, 'boot_1.json'))
+        os.mknod(join(self.dir.name, 'lava_1.json'))
         os.mknod(join(self.dir.name, 'build_1.json'))
         leftovers = es._load_leftovers(self.dir.name)
 
-        self.assertEqual(len(leftovers['boot']), 1)
+        self.assertEqual(len(leftovers['lava']), 1)
         self.assertEqual(len(leftovers['build']), 1)
-        self.assertEqual(leftovers['boot'], {'1': 'boot_1.json'})
+        self.assertEqual(leftovers['lava'], {'1': 'lava_1.json'})
         self.assertEqual(leftovers['build'], {'1': 'build_1.json'})
 
     def test_download(self):
-        downloads = es._download('boot', {'1': 'https://linaro.org'}, self.dir.name)
+        downloads = es._download('lava', {'1': 'https://linaro.org'}, self.dir.name)
         self.assertEqual(len(downloads), 1)
-        self.assertEqual(downloads, {'1': 'boot_1.json'})
+        self.assertEqual(downloads, {'1': 'lava_1.json'})
 
         downloads = es._download('build', {'1': 'https://linaro.org'}, self.dir.name)
         self.assertEqual(len(downloads), 1)
@@ -49,9 +49,9 @@ class TestElastic(unittest.TestCase):
 
         leftovers = es._load_leftovers(self.dir.name)
 
-        self.assertEqual(len(leftovers['boot']), 1)
+        self.assertEqual(len(leftovers['lava']), 1)
         self.assertEqual(len(leftovers['build']), 1)
-        self.assertEqual(leftovers['boot'], {'1': 'boot_1.json'})
+        self.assertEqual(leftovers['lava'], {'1': 'lava_1.json'})
         self.assertEqual(leftovers['build'], {'1': 'build_1.json'})
 
     def test_is_data_dir_ok(self):
@@ -62,43 +62,43 @@ class TestElastic(unittest.TestCase):
         self.assertTrue(es._is_es_ok())
 
     def test_unlink_successfull_objs(self):
-        file_name = join(self.dir.name, 'boot_1.json')
+        file_name = join(self.dir.name, 'lava_1.json')
         os.mknod(file_name)
         self.assertTrue(isfile(file_name))
-        es._unlink_successfull_objs({'1': 'boot_1.json'}, self.dir.name)
+        es._unlink_successfull_objs({'1': 'lava_1.json'}, self.dir.name)
         self.assertFalse(isfile(file_name))
 
     def test_post(self):
-        file_name = join(self.dir.name, 'boot_1.json')
+        file_name = join(self.dir.name, 'lava_1.json')
         os.mknod(file_name)
         self.assertTrue(isfile(file_name))
 
-        response = es._post('boot', 'boot_1.json', self.dir.name)
+        response = es._post('lava', 'lava_1.json', self.dir.name)
         self.assertTrue(response)
 
-        response = es._post('boot', 'does_not_exist', self.dir.name)
+        response = es._post('lava', 'does_not_exist', self.dir.name)
         self.assertFalse(response)
 
     def test_send(self):
-        file_name = join(self.dir.name, 'boot_1.json')
+        file_name = join(self.dir.name, 'lava_1.json')
         os.mknod(file_name)
         self.assertTrue(isfile(file_name))
 
-        response = es._send('boot', 'boot_1.json', self.dir.name)
+        response = es._send('lava', 'lava_1.json', self.dir.name)
         self.assertTrue(response)
 
-        response = es._send('boot', 'does_not_exist', self.dir.name)
+        response = es._send('lava', 'does_not_exist', self.dir.name)
         self.assertFalse(response)
 
     def test_send_to_es(self):
-        file_name = join(self.dir.name, 'boot_1.json')
+        file_name = join(self.dir.name, 'lava_1.json')
         os.mknod(file_name)
         self.assertTrue(isfile(file_name))
 
-        passed, failed = es._send_to_es('boot', {'1': 'boot_1.json'}, self.dir.name)
+        passed, failed = es._send_to_es('lava', {'1': 'lava_1.json'}, self.dir.name)
         self.assertEqual(len(passed), 1)
         self.assertEqual(len(failed), 0)
-        self.assertEqual(len(models.all_objs('boot')), 1)
+        self.assertEqual(len(models.all_objs('lava')), 1)
         self.assertFalse(isfile(file_name))
         
 

@@ -29,14 +29,14 @@ class TestKernelCIMethods(unittest.TestCase):
         self.assertNotEqual(len(token), 0)
 
     def test_get_docs(self):
-        boots = self.kci._get_docs('boot', how_many=1)
-        self.assertEqual(len(boots), 1)
+        lavas = self.kci._get_docs('lava', how_many=1)
+        self.assertEqual(len(lavas), 1)
 
         builds = self.kci._get_docs('build', how_many=1)
         self.assertEqual(len(builds), 1)
 
-    def test_get_boots(self):
-        links = self.kci.get_boots(how_many=1)
+    def test_get_lavas(self):
+        links = self.kci.get_lavas(how_many=1)
         self.assertEqual(len(links), 1)
 
     def test_get_builds(self):
