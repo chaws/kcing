@@ -253,7 +253,7 @@ def feed(args):
         lavas = _download('lava', kci.get_lavas(args.how_many))
 
         # Delete old objects that are no longer needed
-        models.delete_old(0)
+        models.delete_old()
 
     # During download, some lava files might've been switched to boot files
     # so let's just separate them and filter them out of lavas dictonary
