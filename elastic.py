@@ -19,8 +19,11 @@ logger = logging.getLogger()
 data_dir = join(dirname(__file__), 'data')
 client = None
 leftovers = None
-es_lava_url = settings.ES_LAVA
-es_build_url = settings.ES_BUILD
+es_urls = {
+    'lava': settings.ES_LAVA,
+    'build': settings.ES_BUILD,
+    'boot': settings.ES_BOOT,
+}
 
 
 class fake_args(object):
@@ -38,12 +41,14 @@ def _client():
 
 def _load_leftovers(path=data_dir):
     global leftovers
-    leftovers = {'lava': {}, 'build': {}}
+    leftovers = {'lava': {}, 'build': {}, 'boot': {}}
     for f in listdir(path):
         if f.startswith('lava_'):
             _type = 'lava'
         elif f.startswith('build_'):
             _type = 'build'
+        elif f.startswith('boot_'):
+            _type = 'boot'
         else:
             continue
 
@@ -57,11 +62,15 @@ def _download(_type, objs, path=data_dir):
     # Get whatever lava/build previously downloaded
     # but yet not successfully posted to ES
     _load_leftovers(path)
-    downloads = leftovers[_type] # [_id] = (build|lava)_id.json
+    downloads = leftovers[_type] # [_id] = (build|lava|boot)_id.json
     logger.debug('%i %s files are already downloaded' % (len(downloads), _type))
 
     # Also, get a list of objects that were posted successfully
     processed = models.all_objs(_type)
+ 
+    # When _type is 'lava', there might be boots as well
+    if _type == 'lava':
+        processed.update(models.all_objs('boot'))
 
     # Filter objs, removing ones already downloaded or processed
     fresh_ids = objs.keys() - downloads.keys()
@@ -92,8 +101,9 @@ def _is_data_dir_ok(path=data_dir):
 def _is_es_ok():
     logger.info('Checking ES health')
 
-    for url in [es_lava_url, es_build_url]:
+    for url in es_urls.values():
         try:
+            logger.debug('Pinging "%s"' % (url))
             response = _client().get(url)
         except:
             logger.error('Cannot reach "%s"' % (url))
@@ -130,7 +140,7 @@ def _post(_type, file_name, path=data_dir):
         logger.error('Object %s is not a valid file' % (file_name))
         return False
 
-    es_url = es_build_url if _type == 'build' else es_lava_url
+    es_url = es_urls[_type]
 
     file_content = ''
     with open(file_name, 'r') as file_handler:
@@ -228,15 +238,23 @@ def feed(args):
     kci = KernelCI()
 
     # lavas and builds are already files downloaded to disk
-    lavas = args.lavas or _download('lava', kci.get_lavas(args.how_many))
     builds = args.builds or _download('build', kci.get_builds(args.how_many))
+    lavas = args.lavas or _download('lava', kci.get_lavas(args.how_many))
 
-    logger.info('Working on %i lavas and %i builds from KernelCI/command line' % (len(lavas), len(builds)))
+    # During download, some lava files might've been switched to boot files
+    # so let's just separate them and filter them out of lavas dictonary
+    boots = {_id: lavas[_id] for _id in lavas.keys() if 'boot' in lavas[_id]}
+    for _id in boots.keys():
+        del lavas[_id]
 
-    saved_lavas, failed_lavas = _send_to_es('lava', lavas, )
+    logger.info('Working on %i lavas, %i builds and %i boots from KernelCI/command line' % (len(lavas), len(builds), len(boots)))
+
+    saved_lavas, failed_lavas = _send_to_es('lava', lavas)
     saved_builds, failed_builds = _send_to_es('build', builds)
+    saved_boots, failed_boots = _send_to_es('boot', boots)
 
     models.end()
 
     logger.info('Lavas: sent %i to ES, %i failed' % (len(saved_lavas), len(failed_lavas.keys())))
     logger.info('Builds: sent %i to ES, %i failed' % (len(saved_builds), len(failed_builds.keys())))
+    logger.info('Boots: sent %i to ES, %i failed' % (len(saved_boots), len(failed_boots.keys())))

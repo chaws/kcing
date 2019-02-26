@@ -7,9 +7,11 @@ import requests
 from os.path import dirname, realpath, join
 
 from kernelci import KernelCI
+import settings
 
 logger = logging.getLogger()
 client = None
+non_lava_lab = settings.KCI_NON_LAVA_LAB
 SAMPLES_DIR = join(dirname(realpath(__file__)), 'samples')
 
 
@@ -47,6 +49,13 @@ def _persist_samples(sample_type, objs, samples_dir):
     for _id in objs.keys():
         download_link = objs[_id]
         try:
+            # lab-baylibre-seattle doesn't have lava-json*.json files, only boot*.json
+            # so this is a hacky way of making this
+            if sample_type == 'lava' and non_lava_lab in download_link:
+                sample_type = 'boot'
+                download_link = download_link.replace('lava-json-', 'boot-')
+                logger.info('Non-lava lab detected (%s), switching lava-json- file to boot- file')
+
             logger.debug('Downloading "%s"' % (download_link))
             response = _client().get(download_link)
         except:
@@ -91,7 +100,12 @@ def gen(args):
     saved_lavas, failed_lavas = _persist_samples('lava', lavas, samples_dir)
     saved_builds, failed_builds = _persist_samples('build', builds, samples_dir)
 
-    logger.info('Lavas: saved %i to disk, %i failed' % (len(saved_lavas), len(failed_lavas.keys())))
+    # Check if there were any non-lava switches
+    saved_boots = [v for v in saved_lavas.values() if v.startswith('boot')]
+    failed_boots = [v for v in failed_lavas.values() if v.startswith('boot')]
+
+    logger.info('Lavas: saved %i to disk, %i failed' % (len(saved_lavas) - len(saved_boots), len(failed_lavas.keys()) - len(failed_boots)))
     logger.info('Builds: saved %i to disk, %i failed' % (len(saved_builds), len(failed_builds.keys())))
+    logger.info('Boots: saved %i to disk, %i failed' % (len(saved_boots), len(failed_boots)))
 
     return 0
