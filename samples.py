@@ -54,7 +54,7 @@ def _persist_samples(sample_type, objs, samples_dir):
             if non_lava_lab in download_link:
                 sample_type = 'boot'
                 download_link = download_link.replace('lava-json-', 'boot-')
-                logger.info('Non-lava lab detected (%s), switching lava-json- file to boot- file')
+                logger.info('Non-lava lab detected (%s), switching lava-json- file to boot- file' % (download_link))
 
             logger.debug('Downloading "%s"' % (download_link))
             response = _client().get(download_link)
