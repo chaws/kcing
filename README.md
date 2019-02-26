@@ -14,10 +14,17 @@ KCING currently acts as an alternative visualization tool for kernelci's jobs. N
 
 During prototyping stage, we wrote `kcing.py` to emulate KernelCI Builders and Labs. It'll, daily, go to kernelci ajax api, query the past two days worth of boots and builds and use it to feed a running ElasticSearch instance. 
 
+### Requirements
+
+Kcing doesn't require much to run, just `python3`, `pip3` and once these are satisfied, just run:
+
+    pip3 install -r requirements.txt
+
 ### List of available commands
 
-- `./kcing.py feed_es [--how-many=N]` will attempt to download N (or last two days worth of data) lava files and builds from kernelci and submit them to a running ELK stack
+- `./kcing.py feed_es [--how-many=N]` will attempt to download N (or last two days worth of data) lava files and builds from kernelci and submit them to a running ELK stack. Note that kcing runs a local sqlite database to keep track of what files were processed already so that duplicates don't exist in ElasticSearch. If you wish to clean this database, see `./kcing.py drp`.
 - `./kcing.py gen_samples [--sample-size=N]` will attempt to download N (or last two days worth of data) lava files and builds recorded in kernelci website. Samples are stored in `samples` directory. 
+- `./kcing.py drp [--drp-days N]` (data rentention policy) will remove the N (of defaults to `DRP_DAYS`) last days of processed data
 - `./kcing.py test` will run available tests. For now, only `kernelci` tests are available
 
 ## Important parts of this repo
