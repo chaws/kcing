@@ -51,7 +51,7 @@ def _persist_samples(sample_type, objs, samples_dir):
         try:
             # lab-baylibre-seattle doesn't have lava-json*.json files, only boot*.json
             # so this is a hacky way of making this
-            if sample_type == 'lava' and non_lava_lab in download_link:
+            if non_lava_lab in download_link:
                 sample_type = 'boot'
                 download_link = download_link.replace('lava-json-', 'boot-')
                 logger.info('Non-lava lab detected (%s), switching lava-json- file to boot- file')

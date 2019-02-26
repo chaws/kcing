@@ -55,6 +55,8 @@ def _load_leftovers(path=data_dir):
         _id = f.replace('%s_' % (_type), '').replace('.json', '')
         leftovers[_type][_id] = f
 
+    leftovers['lava'].update(leftovers['boot'])
+
     return leftovers
 
 def _download(_type, objs, path=data_dir):
