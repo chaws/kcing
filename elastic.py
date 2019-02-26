@@ -252,6 +252,9 @@ def feed(args):
         builds = _download('build', kci.get_builds(args.how_many))
         lavas = _download('lava', kci.get_lavas(args.how_many))
 
+        # Delete old objects that are no longer needed
+        models.delete_old(0)
+
     # During download, some lava files might've been switched to boot files
     # so let's just separate them and filter them out of lavas dictonary
     boots = {_id: lavas[_id] for _id in lavas.keys() if 'boot' in lavas[_id]}
