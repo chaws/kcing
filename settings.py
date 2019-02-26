@@ -12,7 +12,7 @@ def env_or_local(var_name, default=None):
     return getenv(var_name) or local.get(var_name) or default
 
 # Main kernelci domain name
-KCI_HOST   = env_or_local('KCI_HOST', 'kernelci')
+KCI_HOST   = env_or_local('KCI_HOST', 'kernelci.org')
 KCI_SCHEME = env_or_local('KCI_SCHEME', 'https')
 KCI_NON_LAVA_LAB = env_or_local('KCI_NON_LAVA_LAB', 'lab-baylibre-seattle')
 
