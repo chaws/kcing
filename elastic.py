@@ -239,27 +239,24 @@ def feed(args):
 
     kci = KernelCI()
 
-    # lavas and builds are already files downloaded to disk
-    builds = {}
-    lavas = {}
-
     # If builds or lavas are exclusively passed on command line, ignore the other one
     # otherwise it'd retrieve the regular feed_es data size (past 2 days)
     if args.builds or args.lavas:
-        builds = args.builds
-        lavas = args.lavas
+        builds = args.builds or {}
+        lavas = args.lavas or {}
+        boots = {}
     else:
         builds = _download('build', kci.get_builds(args.how_many))
         lavas = _download('lava', kci.get_lavas(args.how_many))
 
+        # During download, some lava files might've been switched to boot files
+        # so let's just separate them and filter them out of lavas dictonary
+        boots = {_id: lavas[_id] for _id in lavas.keys() if 'boot' in lavas[_id]}
+        for _id in boots.keys():
+            del lavas[_id]
+
         # Delete old objects that are no longer needed
         models.delete_old()
-
-    # During download, some lava files might've been switched to boot files
-    # so let's just separate them and filter them out of lavas dictonary
-    boots = {_id: lavas[_id] for _id in lavas.keys() if 'boot' in lavas[_id]}
-    for _id in boots.keys():
-        del lavas[_id]
 
     logger.info('Working on %i lavas, %i builds and %i boots from KernelCI/command line' % (len(lavas), len(builds), len(boots)))
 
