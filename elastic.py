@@ -241,10 +241,10 @@ def feed(args):
 
     # If builds or lavas are exclusively passed on command line, ignore the other one
     # otherwise it'd retrieve the regular feed_es data size (past 2 days)
-    if args.builds or args.lavas:
+    if args.builds or args.lavas or args.boots:
         builds = args.builds or {}
         lavas = args.lavas or {}
-        boots = {}
+        boots = args.boots or {}
     else:
         builds = _download('build', kci.get_builds(args.how_many))
         lavas = _download('lava', kci.get_lavas(args.how_many))

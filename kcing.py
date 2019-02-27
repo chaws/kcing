@@ -68,6 +68,8 @@ if __name__ == '__main__':
                         help="List of build files to send to ES")
     parser.add_argument("--lavas", nargs='+',
                         help="List of lava files to send to ES")
+    parser.add_argument("--boots", nargs='+',
+                        help="List of boot files to send to ES")
     parser.add_argument("--sample-size", type=int, default=-1,
                         help="How many samples to download, defaults to two past days worth of data")
     parser.add_argument("--samples-dir", default='samples',
