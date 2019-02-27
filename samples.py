@@ -47,12 +47,13 @@ def _persist_samples(sample_type, objs, samples_dir):
     failed = {}
     saved = {}
     for _id in objs.keys():
+        temp_sample_type = sample_type
         download_link = objs[_id]
         try:
             # lab-baylibre-seattle doesn't have lava-json*.json files, only boot*.json
             # so this is a hacky way of making this
             if non_lava_lab in download_link:
-                sample_type = 'boot'
+                temp_sample_type = 'boot'
                 download_link = download_link.replace('lava-json-', 'boot-')
                 logger.info('Non-lava lab detected (%s), switching lava-json- file to boot- file' % (download_link))
 
@@ -68,7 +69,7 @@ def _persist_samples(sample_type, objs, samples_dir):
             failed[_id] = download_link
             continue
         
-        file_name = '%s_%s.json' % (sample_type, _id)
+        file_name = '%s_%s.json' % (temp_sample_type, _id)
         file_content = response.content.decode()
         with open('%s/%s' % (samples_dir, file_name), 'w') as file_handler:
             file_handler.write(file_content)
