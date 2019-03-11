@@ -17,9 +17,10 @@ KCI_SCHEME = env_or_local('KCI_SCHEME', 'https')
 KCI_NON_LAVA_LAB = env_or_local('KCI_NON_LAVA_LAB', 'lab-baylibre-seattle')
 
 # ES links, it's actually logstash listening to those handlers
-ES_LAVA  = env_or_local('ES_LAVA')
-ES_BUILD = env_or_local('ES_BUILD')
-ES_BOOT = env_or_local('ES_BOOT')
+ES_HOST  = env_or_local('ES_HOST', 'http://localhost:9200')
+ES_LAVA  = env_or_local('ES_LAVA', 'http://localhost:8338')
+ES_BUILD = env_or_local('ES_BUILD', 'http://localhost:8337')
+ES_BOOT  = env_or_local('ES_BOOT', 'http://localhost:8007')
 
 # If an attempt to send data to ES fails, retry for ES_MAX_RETRIES before giving up
 ES_MAX_RETRIES = env_or_local('ES_MAX_RETRIES', 3)

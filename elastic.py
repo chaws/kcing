@@ -19,6 +19,7 @@ logger = logging.getLogger()
 data_dir = join(dirname(__file__), 'data')
 client = None
 leftovers = None
+es_host = settings.ES_HOST
 es_urls = {
     'lava': settings.ES_LAVA,
     'build': settings.ES_BUILD,
@@ -269,3 +270,33 @@ def feed(args):
     logger.info('Lavas: sent %i to ES, %i failed' % (len(saved_lavas), len(failed_lavas.keys())))
     logger.info('Builds: sent %i to ES, %i failed' % (len(saved_builds), len(failed_builds.keys())))
     logger.info('Boots: sent %i to ES, %i failed' % (len(saved_boots), len(failed_boots.keys())))
+
+
+def setup(args):
+    """
+    Set up elasticsearch by putting mappings templates
+    thus allowing aliasing and other first-time settings to
+    be made
+    """
+
+    logger.info('Setting up ElasticSearch')
+
+    headers = {'Content-Type': 'application/json'}
+
+    # Get mappings files
+    for file_name in listdir('mapping_templates'):
+        with open('mapping_templates/%s' % (file_name)) as fh:
+            mapping = fh.read()
+
+        logger.info('Setting "%s" mapping' % (file_name))
+        mapping_name = file_name.replace('.json', '')
+        url = '%s/_template/%s' % (es_host, mapping_name)
+
+        try:
+            res = _client().put(url, headers=headers, data=mapping)
+        except:
+            logger.error('Failed to send "%s" to ElasticSearch due to connection issues' % (file_name))
+
+        if res.status_code != 200:
+            logger.error('Failed to send "%s" to ElasticSearch, it returned something different than 200')
+        logger.info('ES answered: %s' % (res.content.decode()))
