@@ -6,7 +6,7 @@
   "mappings": {
     "doc": {
       "_source": {
-        "enabled": false
+        "enabled": true
       },
       "properties": {
         "@timestamp": {
