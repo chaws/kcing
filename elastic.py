@@ -296,7 +296,10 @@ def setup(args):
             res = _client().put(url, headers=headers, data=mapping)
         except:
             logger.error('Failed to send "%s" to ElasticSearch due to connection issues' % (file_name))
+            continue
 
         if res.status_code != 200:
             logger.error('Failed to send "%s" to ElasticSearch, it returned something different than 200')
+            continue
+
         logger.info('ES answered: %s' % (res.content.decode()))
