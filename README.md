@@ -16,9 +16,66 @@ During prototyping stage, we wrote `kcing.py` to emulate KernelCI Builders and L
 
 ### Requirements
 
-Kcing doesn't require much to run, just `python3`, `pip3` and once these are satisfied, just run:
+The kcing docker container runs ElasticSearch as the main program, therefore it requires a setting on the host machine so that the container runs properly. Based on the [official documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html#vm-max-map-count), you need to change `vm-max-map-count` setting:
 
-    pip3 install -r requirements.txt
+    # sysctl -w vm.max_map_count=262144
+
+That's all system requirements that are, besides getting docker and docker-compose installed.
+
+### Start up
+
+Kcing has its own docker containing based off [Sébastien Pujadas](https://hub.docker.com/r/sebp/elk) great effort to manage to get the whole-most-up-to-date ELK stack up and running. The only changes from the original work are kernelci documents and kibana objects that are already saved to it. There's about 2500 documents in the ElasticSearch shard, with boots, builds and lava documents, a good amount for you to get started.
+
+Start up ELK container by:
+
+    docker-compose up
+
+And wait a few seconds/minutes for the whole thing fire up. Keep in mind that ELK is based of several JVM instances running at the same time, so please be patient.
+
+
+### Important commands
+
+Since kcing deals with the ELK stack, this means there are 3 different programs to keep track of configurations and running states. Use commands below for everyday management of your work.
+
+#### Backup kibana objects
+
+This might be the most important command to use because it allows different instances of kcing ELK stack to share the same visualizations. It works by exporting kibana's mappings and data straight out from ElasticSearch:
+
+    ./kcing.py backup_kbn
+
+That's it! It'll overwrite [kcing.kibana](kcing.kibana) (data) and [kibana.json](mapping_templates/kibana.json) (mappings), so please make sure to commit them and push it to the remote git server.
+
+#### Restore kibana objects
+
+This command is already run everytime the docker container is started, and it works as the opposite of the previous command:
+
+    ./kcing.py setup_kbn
+
+Please note that it *overwrites* your kibana's instance data and mappings. Be careful to run this command because you may lose data that you've been working on.
+
+#### Get more data from kernelci
+
+There's already about 2500 objects in the original container, but you're likely to get more data to work on. The script below does this the hard way, by querying kernelci website's raw data for boots and builds, working itself out to retrieve lava files from [storage.kernelci.org](https://storage.kernelci.org). That being said, availability of data depends on kernelci's websites.
+
+Kcing comes with two ways of getting data: one that saves to `samples` directory, and another one that insert all data directly to ElasticSearch.
+
+##### Inserting new data to ElasticSearch
+
+Kcing inserts data by downloading a user-defined number of json files from *storage.kernelci.org* to a temporary directory, where later it submits in batch to a Logstash instance running [this](kcing_pipeline.conf) pipeline configuration.
+
+    ./kcing.py feed_es
+
+By default it'll crawl kernelci website and get the past two days worth of data. If you wish to limit that number, do so by passing `--how-many 42` to specify a number. Depending on the amount selected, it might take a while to download everything. Enable debugging `-d` in order to get more info on the screen during download.
+
+It might be useful to get daily updates so that your instance will have same data as kernelci. Kcing has duplicate check feature that prevent downloading and addition of files that were previoisly downloaded. Installing a cron job might be the way to go, just make sure kcing is run in its own current directory. Also, logging what happened is possible by using `-l log_file` to save executing logs.
+
+##### Downloading samples
+
+This is useful want one needs to work on a single file, or sets of files repetitively. The data will be stored in `samples` folder.
+
+    ./kcing.py gen_samples
+
+Similar to first strategy, by default it gets past two days of data. Limit the amount of data by using `--sample_size 42` for your needs.
 
 ### List of available commands
 
