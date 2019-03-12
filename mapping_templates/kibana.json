@@ -1,8 +1,7 @@
 {
-  "index_patterns": [".kibana*"],
-  "settings": {
-    "number_of_shards": 1
-  },
+  "index_patterns": [
+    ".kibana*"
+  ],
   "mappings": {
     "doc": {
       "_source": {
@@ -10,6 +9,64 @@
       },
       "dynamic": "strict",
       "properties": {
+        "apm-telemetry": {
+          "properties": {
+            "has_any_services": {
+              "type": "boolean"
+            },
+            "services_per_agent": {
+              "properties": {
+                "go": {
+                  "null_value": 0,
+                  "type": "long"
+                },
+                "java": {
+                  "null_value": 0,
+                  "type": "long"
+                },
+                "js-base": {
+                  "null_value": 0,
+                  "type": "long"
+                },
+                "nodejs": {
+                  "null_value": 0,
+                  "type": "long"
+                },
+                "python": {
+                  "null_value": 0,
+                  "type": "long"
+                },
+                "ruby": {
+                  "null_value": 0,
+                  "type": "long"
+                }
+              }
+            }
+          }
+        },
+        "canvas-workpad": {
+          "dynamic": "false",
+          "properties": {
+            "@created": {
+              "type": "date"
+            },
+            "@timestamp": {
+              "type": "date"
+            },
+            "id": {
+              "index": false,
+              "type": "text"
+            },
+            "name": {
+              "fields": {
+                "keyword": {
+                  "type": "keyword"
+                }
+              },
+              "type": "text"
+            }
+          }
+        },
         "config": {
           "dynamic": "true",
           "properties": {
@@ -17,16 +74,13 @@
               "type": "keyword"
             },
             "defaultIndex": {
-              "type": "text",
               "fields": {
                 "keyword": {
-                  "type": "keyword",
-                  "ignore_above": 256
+                  "ignore_above": 256,
+                  "type": "keyword"
                 }
-              }
-            },
-            "telemetry:optIn": {
-              "type": "boolean"
+              },
+              "type": "text"
             }
           }
         },
@@ -138,8 +192,41 @@
             },
             "title": {
               "type": "text"
+            },
+            "type": {
+              "type": "keyword"
+            },
+            "typeMeta": {
+              "type": "keyword"
             }
           }
+        },
+        "kql-telemetry": {
+          "properties": {
+            "optInCount": {
+              "type": "long"
+            },
+            "optOutCount": {
+              "type": "long"
+            }
+          }
+        },
+        "migrationVersion": {
+          "dynamic": "true",
+          "properties": {
+            "index-pattern": {
+              "fields": {
+                "keyword": {
+                  "ignore_above": 256,
+                  "type": "keyword"
+                }
+              },
+              "type": "text"
+            }
+          }
+        },
+        "namespace": {
+          "type": "keyword"
         },
         "search": {
           "properties": {
@@ -174,6 +261,38 @@
           "properties": {
             "uuid": {
               "type": "keyword"
+            }
+          }
+        },
+        "space": {
+          "properties": {
+            "_reserved": {
+              "type": "boolean"
+            },
+            "color": {
+              "type": "keyword"
+            },
+            "description": {
+              "type": "text"
+            },
+            "initials": {
+              "type": "keyword"
+            },
+            "name": {
+              "fields": {
+                "keyword": {
+                  "ignore_above": 2048,
+                  "type": "keyword"
+                }
+              },
+              "type": "text"
+            }
+          }
+        },
+        "telemetry": {
+          "properties": {
+            "enabled": {
+              "type": "boolean"
             }
           }
         },
@@ -236,13 +355,13 @@
               "type": "date"
             },
             "url": {
-              "type": "text",
               "fields": {
                 "keyword": {
-                  "type": "keyword",
-                  "ignore_above": 2048
+                  "ignore_above": 2048,
+                  "type": "keyword"
                 }
-              }
+              },
+              "type": "text"
             }
           }
         },
@@ -277,5 +396,8 @@
         }
       }
     }
+  },
+  "settings": {
+    "number_of_shards": 1
   }
 }
