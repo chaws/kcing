@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Make sure kibana is ready (running isn't enough)
+# https://github.com/elastic/kibana/issues/25464
 attempts=0
 while [ $attempts != 60 ]
 do 
