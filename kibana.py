@@ -10,15 +10,17 @@ import settings
 
 logger = logging.getLogger()
 
-kibana_filename = 'kcing.kibana' 
+kibana_filename = 'kcing.kibana'
+kibana_mapping = 'mapping_templates/kibana.json'
 es_host = settings.ES_HOST
 headers = {'Content-Type': 'application/json'}
 
 
 def backup(args):
-    logger.info('Backing up kibana')
+    logger.info('Backing up kibana data & mapping')
 
-    url = '%s/.kibana_1/_search' % (es_host)
+    mapping_url = '%s/.kibana_1/_mapping' % (es_host)
+    data_url = '%s/.kibana_1/_search' % (es_host)
     search = """{
        "size": 10000,
         "query": {
@@ -27,19 +29,36 @@ def backup(args):
     }"""
 
     try:
-        res = requests.post(url, headers=headers, data=search)
+        data_res = requests.post(data_url, headers=headers, data=search)
+        mapping_res = requests.get(mapping_url, headers=headers)
     except:
         logger.error('Failed to backup kibana due to connection issues')
         return
 
-    if res.status_code != 200:
-        logger.error('Failed to backup kibana due to http return code %i' % (res.status_code))
-        logger.error('%s' % (res.content.decode()))
+    if data_res.status_code != 200:
+        logger.error('Failed to backup kibana data due to http return code %i' % (data_res.status_code))
+        logger.error('%s' % (data_res.content.decode()))
         return
 
-    objects = json.loads(res.content.decode())['hits']['hits']
+    if mapping_res.status_code != 200:
+        logger.error('Failed to backup kibana mappings due to http return code %i' % (mapping_res.status_code))
+        logger.error('%s' % (mapping_res.content.decode()))
+        return
+
+    # Save data to kcing.kibana
+    objects = json.loads(data_res.content.decode())['hits']['hits']
     with open(kibana_filename, 'w') as fh:
         json.dump(objects, fh, sort_keys = True, indent = 2)
+    logger.info('Kibana objects saved to %s' % (kibana_filename))
+
+    # Save mapings to mapping_templates/kibana.json
+    mapping = json.loads(mapping_res.content.decode())['.kibana_1']
+    mapping['index_patterns'] = ['.kibana*']
+    mapping['settings'] = {'number_of_shards': 1}
+    mapping['mappings']['doc']['_source'] = {'enabled': True}
+    with open(kibana_mapping, 'w') as fh:
+        json.dump(mapping, fh, sort_keys = True, indent = 2)
+    logger.info('Kibana mappings saved to %s' % (kibana_mapping))
 
 
 def setup(args):
@@ -71,6 +90,7 @@ def setup(args):
             failed = failed + 1
             continue
 
+        logger.info('%s: %s' % (o['_id'], res.content.decode()))
         sent = sent + 1
 
     logger.info('Sent %i saved objects to kibana, and %i failed' % (sent, failed))
