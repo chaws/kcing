@@ -6,7 +6,7 @@
 FROM sebp/elk
 
 # How many samples to add to the container
-ARG sample_size=50
+ARG sample_size=1000
 ARG SAMPLE_SIZE=$sample_size
 
 # Configure kcing repo
@@ -25,14 +25,15 @@ RUN set -x \
  && service elasticsearch start \
  && ./scripts/wait_elasticsearch.sh \
  && ./kcing.py setup_es \
- && ./kcing.py setup_kbn \
  && ./kcing.py setup_ls \
  && service logstash start \
- && ./scripts/wait_logstash.sh \
+ && cp scripts/elk-post-hooks.sh /usr/local/bin/ \
+ && chmod +x /usr/local/bin/elk-post-hooks.sh \
  && rm -f kcing.db \
+ && ./scripts/wait_logstash.sh \
  && (./kcing.py feed_es --how-many ${SAMPLE_SIZE} || exit 0)
 
 # Our logstash pipelines ports
 EXPOSE 5601 9200 8337 8338 8007
 
-CMD [ "/usr/local/bin/start.sh" ]
+CMD ["/usr/local/bin/start.sh"]
