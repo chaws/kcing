@@ -6,6 +6,7 @@ import sys
 
 import elastic
 import logstash
+import kibana
 import models
 import samples
 import tests
@@ -27,8 +28,10 @@ avail_cmds = {
     'test': tests.run,
     'feed_es': elastic.feed,
     'setup_es': elastic.setup,
-    'gen_samples': samples.gen,
     'setup_ls': logstash.setup,
+    'setup_kbn': kibana.setup,
+    'backup_kbn': kibana.backup,
+    'gen_samples': samples.gen,
     'drp': models.drp,
 }
 
@@ -56,8 +59,10 @@ if __name__ == '__main__':
                         help="`test` runs available tests; use --testargs to provide extra args for unittest. "
                              "`gen_samples` generates --sample-size (or past two days of) lavas and builds from kernelci and save it to --samples-dir. "
                              "`setup_ls` configures logstash to better use queueing. "
-                             "`feed_es` downloads lavas/builds from kernelci and submit them to ES. "
                              "`setup_es` send mapping templates to ES. "
+                             "`setup_kbn` restore kibana saved objects. "
+                             "`backup_kbn` dump kibana saved objects to `kcing.kibana`. "
+                             "`feed_es` downloads lavas/builds from kernelci and submit them to ES. "
                              "`drp` removes old local helper lavas/builds stored locally"
     )
     parser.add_argument("-l", "--log-filename",
