@@ -55,7 +55,6 @@ def backup(args):
     mapping = json.loads(mapping_res.content.decode())['.kibana_1']
     mapping['index_patterns'] = ['.kibana*']
     mapping['settings'] = {'number_of_shards': 1}
-    mapping['mappings']['doc']['_source'] = {'enabled': True}
     with open(kibana_mapping, 'w') as fh:
         json.dump(mapping, fh, sort_keys = True, indent = 2)
     logger.info('Kibana mappings saved to %s' % (kibana_mapping))
