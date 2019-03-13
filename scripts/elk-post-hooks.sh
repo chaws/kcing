@@ -38,5 +38,5 @@ then
     ./scripts/wait_logstash.sh
 
     echo "First time only: feeding ElasticSearch with 2500-ish objects. Go grab a cup of coffee..."
-    $(./kcing.py feed_es --how-many 1000 || exit 0)
+    $(./kcing.py feed_es --how-many 500 || exit 0)
 fi
