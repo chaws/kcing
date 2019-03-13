@@ -20,7 +20,7 @@ The kcing docker container runs ElasticSearch as the main program, therefore it 
 
     # sysctl -w vm.max_map_count=262144
 
-That's all system requirements that are, besides getting [docker](https://docs.docker.com/install/linux/docker-ce/debian/) and docker-compose installed.
+That's all system requirements that are, besides getting [docker](https://docs.docker.com/install/linux/docker-ce/debian/) and [docker-compose](https://docs.docker.com/compose/install/) installed.
 
 ### Start up
 
