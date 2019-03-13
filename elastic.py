@@ -212,7 +212,7 @@ def _send_to_es(_type, objs, path=data_dir):
         # This controls the amount of load to send logstash
         # let's try to send the same of events as logstash's LS_PIPELINE_BATCH_SIZE setting
         if (len(passed) + len(failed)) % settings.LS_PIPELINE_BATCH_SIZE == 0:
-            logger.info('Wait a bit to let logstash digest queued events. Sleeping for %i seconds' % (settings.ES_LOAD_INTERVAL))
+            logger.info('Wait a bit to let logstash digest more %i events. Sleeping for %i seconds' % (settings.LS_PIPELINE_BATCH_SIZE, settings.ES_LOAD_INTERVAL))
             time.sleep(settings.ES_LOAD_INTERVAL)
 
     # Save successfull objs and delete the ones processed correctly
