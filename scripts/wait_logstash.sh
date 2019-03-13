@@ -10,6 +10,7 @@ do
         break
     fi
     sleep 2
-    ((attempts=$attempts + 1))
+    ((attempts++))
+    echo "kcing is waiting for logstash ($attempts/60)"
 done
 exit $attempts

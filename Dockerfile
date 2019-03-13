@@ -5,10 +5,6 @@
 # https://hub.docker.com/r/sebp/elk/dockerfile
 FROM sebp/elk
 
-# How many samples to add to the container
-ARG sample_size=1000
-ARG SAMPLE_SIZE=$sample_size
-
 # Configure kcing repo
 ENV KCING_HOME /opt/kcing
 ENV LS_HOME ${LOGSTASH_HOME}
@@ -24,16 +20,14 @@ RUN set -x \
  && pip3 install -r requirements.txt \
  && service elasticsearch start \
  && ./scripts/wait_elasticsearch.sh \
- && ./kcing.py setup_es \
  && ./kcing.py setup_ls \
  && service logstash start \
  && cp scripts/elk-post-hooks.sh /usr/local/bin/ \
  && chmod +x /usr/local/bin/elk-post-hooks.sh \
- && rm -f kcing.db \
- && ./scripts/wait_logstash.sh \
- && (./kcing.py feed_es --how-many ${SAMPLE_SIZE} || exit 0)
+ && echo "settings = {'KCING_DB': '/var/lib/elasticsearch/kcing.db'}" > local_settings.py
 
 # Our logstash pipelines ports
 EXPOSE 5601 9200 8337 8338 8007
+VOLUME /var/lib/elasticsearch
 
 CMD ["/usr/local/bin/start.sh"]
