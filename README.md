@@ -24,7 +24,7 @@ That's all system requirements that are, besides getting docker and docker-compo
 
 ### Start up
 
-Kcing has its own docker containing based off [Sébastien Pujadas](https://hub.docker.com/r/sebp/elk) great effort to manage to get the whole-most-up-to-date ELK stack up and running. The only changes from the original work are kernelci documents and kibana objects that are already saved to it. There's about 2500 documents in the ElasticSearch shard, with boots, builds and lava documents, a good amount for you to get started.
+Kcing has its own docker containing based off [Sébastien Pujadas](https://hub.docker.com/r/sebp/elk) great effort to manage to get the whole-most-up-to-date ELK stack up and running. The only changes from the original work are kernelci documents and kibana objects that are already saved to it. There's about 2500 documents in the ElasticSearch shard, with boots, builds and lava, a good amount to get started with.
 
 Start up ELK container by:
 
@@ -67,7 +67,7 @@ Kcing inserts data by downloading a user-defined number of json files from *stor
 
 By default it'll crawl kernelci website and get the past two days worth of data. If you wish to limit that number, do so by passing `--how-many 42` to specify a number. Depending on the amount selected, it might take a while to download everything. Enable debugging `-d` in order to get more info on the screen during download.
 
-It might be useful to get daily updates so that your instance will have same data as kernelci. Kcing has duplicate check feature that prevent downloading and addition of files that were previoisly downloaded. Installing a cron job might be the way to go, just make sure kcing is run in its own current directory. Also, logging what happened is possible by using `-l log_file` to save executing logs.
+It might be useful to get daily updates so that your instance would have same data as kernelci. Kcing has duplicate check feature that prevent downloading and adding files that were previously downloaded. Installing a cron job might be the way to go, just make sure kcing runs in its own directory. Also, logging what happened is possible by using `-l log_file` to save execution logs.
 
 ##### Downloading samples
 
