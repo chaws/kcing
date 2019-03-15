@@ -4,7 +4,9 @@
 # db, data should not be duplicated in ES
 
 import logging
+import re
 import time
+from datetime import datetime, timedelta
 import requests
 from os.path import isfile, isdir, dirname, join
 from os import listdir, unlink, makedirs
@@ -304,3 +306,56 @@ def setup(args):
             continue
 
         logger.info('ES answered: %s' % (res.content.decode()))
+
+
+def drp(args):
+    logger.info('Data Rentention Ploicy will clean up indices older than %i days in ElasticSearch' % (args.drp_days))
+
+    # Get drp date, i.e., YYYY MM DD
+    days = args.drp_days
+    drp_datetime = datetime.now() if days == 0 else datetime.now() - timedelta(days=days)
+    drp_date = drp_datetime.date()
+
+    # Get available indices from ElasticSearch
+    logger.info('Retrieving list of indices')
+    url = '%s/_cat/indices' % (es_host)
+    try:
+        res = _client().get(url)
+    except:
+        logger.error('Failed to retrieve list of indices due to conectivity issues')
+        return -1
+
+    if res.status_code != 200:
+        logger.error('Failed to retrieve list of indices from ElasticSearch, it returned something different than 200')
+        logger.error(res.content.decode())
+        return -1
+
+    # Get target indices
+    content = res.content.decode()
+    indices = re.findall(r'\s((?:log|test|boot|build)-\d{4}\.\d{2}\.\d{2})\s', content)
+
+    to_delete = []
+    for index in indices:
+        index_date = datetime.strptime(index.split('-')[1], '%Y.%m.%d').date()
+        if drp_date > index_date:
+            to_delete.append(index)
+
+    # Delete all
+    if len(to_delete) == 0:
+        logger.info('No indices to delete')
+        return 0
+
+    url = '%s/%s' % (es_host, ','.join(to_delete))
+    try:
+        res = _client().delete(url)
+    except:
+        logger.error('Failed to delete indices due to conectivity issues')
+        return -1
+
+    if res.status_code != 200:
+        logger.error('Failed delete indices from ElasticSearch, it returned something different than 200')
+        logger.error(res.content.decode())
+        return -1
+
+    logger.info('Deleted indices %s' % (to_delete))
+    return 0
