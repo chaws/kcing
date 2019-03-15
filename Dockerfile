@@ -14,16 +14,18 @@ COPY . ${KCING_HOME}
 
 WORKDIR ${KCING_HOME}
 RUN set -x \
+ && git remote rm origin \
+ && git remote add origin https://github.com/chaws/kcing \
  && pip3 install -r requirements.txt \
  && service elasticsearch start \
  && ./scripts/wait_elasticsearch.sh \
  && ./kcing.py setup_ls \
  && sed -i 's/-Xmx.*/-Xmx8g/' /opt/logstash/config/jvm.options \
  && service logstash start \
- && echo "settings = {'KCING_DB': '/var/lib/elasticsearch/kcing.db'}" > local_settings.py
+ && echo "settings = {'KCING_DB': '/var/lib/elasticsearch/kcing.db'}" > local_settings.py \
+ && cp scripts/elk-post-hooks.sh /usr/local/bin/ \
+ && chmod +x /usr/local/bin/elk-post-hooks.sh
 
- #&& cp scripts/elk-post-hooks.sh /usr/local/bin/ \
- #&& chmod +x /usr/local/bin/elk-post-hooks.sh \
 
 # Our logstash pipelines ports
 EXPOSE 5601 9200 8337 8338 8007
