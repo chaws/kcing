@@ -23,7 +23,6 @@ fi
 
 # Make sure to always start the container with the latest kibana objects
 cd /opt/kcing
-git pull origin master
 ./kcing.py setup_kbn
 
 # Feed initial data
