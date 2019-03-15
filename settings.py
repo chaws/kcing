@@ -45,6 +45,5 @@ LS_PIPELINE_BATCH_SIZE  = env_or_local('LS_PIPELINE_BATCH_SIZE', 10)
 # Database to store progress of processed lavas/builds
 KCING_DB = env_or_local('KCING_DB', 'kcing.db')
 
-# Number of days to keep data, 3 is a good number since we're always fetching
-# last 2 days worth of data
-DRP_DAYS = env_or_local('DRP_DAYS', 3)
+# Number of days to keep data in ES and kcing.db
+DRP_DAYS = env_or_local('DRP_DAYS', 4)

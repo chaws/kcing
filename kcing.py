@@ -24,6 +24,10 @@ stdout_logger.setFormatter(log_format)
 logger.addHandler(stdout_logger)
 
 
+def drp(args):
+    return models.drp(args) + elastic.drp(args)
+
+
 avail_cmds = {
     'test': tests.run,
     'feed_es': elastic.feed,
@@ -32,7 +36,7 @@ avail_cmds = {
     'setup_kbn': kibana.setup,
     'backup_kbn': kibana.backup,
     'gen_samples': samples.gen,
-    'drp': models.drp,
+    'drp': drp,
 }
 
 
@@ -63,7 +67,7 @@ if __name__ == '__main__':
                              "`setup_kbn` restore kibana saved objects. "
                              "`backup_kbn` dump kibana saved objects to `kcing.kibana`. "
                              "`feed_es` downloads lavas/builds from kernelci and submit them to ES. "
-                             "`drp` removes old local helper lavas/builds stored locally"
+                             "`drp` apply Data Rentention Policy"
     )
     parser.add_argument("-l", "--log-filename",
                         help="Logging file name")

@@ -89,7 +89,7 @@ def delete_old(days=None):
 
 # Facade to be called through command line
 def drp(args):
-    logger.info('Data Retention Policy will cleanup some objects')
+    logger.info('Data Rentention Ploicy will clean up indices older than %i days in kcing.db' % (args.drp_days))
     deleted = delete_old(args.drp_days)
     return 0 if deleted >= 0 else -1
          
