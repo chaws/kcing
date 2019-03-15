@@ -39,8 +39,8 @@ LS_QUEUE_TYPE           = env_or_local('LS_QUEUE_TYPE', 'persisted')
 LS_PATH_CONFIG          = env_or_local('LS_PATH_CONFIG', join(dirname(__file__), "kcing_pipeline.conf"))
 
 # Number of events logstash will handle in the 'input' section before going to 'filters'
-LS_QUEUE_MAX_EVENTS     = env_or_local('LS_QUEUE_MAX_EVENTS', 200)
-LS_PIPELINE_BATCH_SIZE  = env_or_local('LS_PIPELINE_BATCH_SIZE', 100)
+LS_QUEUE_MAX_EVENTS     = env_or_local('LS_QUEUE_MAX_EVENTS', 20)
+LS_PIPELINE_BATCH_SIZE  = env_or_local('LS_PIPELINE_BATCH_SIZE', 10)
 
 # Database to store progress of processed lavas/builds
 KCING_DB = env_or_local('KCING_DB', 'kcing.db')
