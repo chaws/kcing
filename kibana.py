@@ -53,7 +53,7 @@ def backup(args):
 
     # Save mapings to mapping_templates/kibana.json
     mapping = json.loads(mapping_res.content.decode())['.kibana_1']
-    mapping['index_patterns'] = ['.kibana*']
+    mapping['index_patterns'] = ['.kibana_1']
     mapping['settings'] = {'number_of_shards': 1}
     with open(kibana_mapping, 'w') as fh:
         json.dump(mapping, fh, sort_keys = True, indent = 2)
@@ -75,7 +75,7 @@ def setup(args):
     failed = 0
     for o in objects:
         try:
-            url = '%s/.kibana_1/doc/%s' % (es_host, o['_id'])
+            url = '%s/.kibana_1/_doc/%s' % (es_host, o['_id'])
             data = json.dumps(o['_source'])
             res = requests.put(url, headers=headers, data=data)
         except:
