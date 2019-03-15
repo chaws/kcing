@@ -38,6 +38,7 @@ def _apply_setup(content):
   pipeline.batch.size: %(batch_size)i
   queue.type: %(queue_type)s
   queue.max_events: %(max_events)i
+  pipeline.workers: 16
 """
     return new_config % config
 
