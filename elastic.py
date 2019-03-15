@@ -299,7 +299,8 @@ def setup(args):
             continue
 
         if res.status_code != 200:
-            logger.error('Failed to send "%s" to ElasticSearch, it returned something different than 200')
+            logger.error('Failed to send "%s" to ElasticSearch, it returned something different than 200' % (file_name))
+            logger.error(res.content.decode())
             continue
 
         logger.info('ES answered: %s' % (res.content.decode()))
