@@ -1,6 +1,6 @@
 {
   "index_patterns": [
-    ".kibana*"
+    ".kibana_1"
   ],
   "mappings": {
     "_meta": {
@@ -106,9 +106,6 @@
               }
             },
             "type": "text"
-          },
-          "doc_table:hideTimeColumn": {
-            "type": "boolean"
           }
         }
       },

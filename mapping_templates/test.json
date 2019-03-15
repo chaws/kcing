@@ -1,5 +1,5 @@
 {
-  "index_patterns": ["boot-*"],
+  "index_patterns": ["test-*"],
   "settings": {
     "number_of_shards": 1
   },
@@ -26,24 +26,6 @@
           }
         }
       },
-      "boot_log" : {
-        "type" : "text",
-        "fields" : {
-          "keyword" : {
-            "type" : "keyword",
-            "ignore_above" : 256
-          }
-        }
-      },
-      "boot_log_html" : {
-        "type" : "text",
-        "fields" : {
-          "keyword" : {
-            "type" : "keyword",
-            "ignore_above" : 256
-          }
-        }
-      },
       "boot_result" : {
         "type" : "text",
         "fields" : {
@@ -52,9 +34,6 @@
             "ignore_above" : 256
           }
         }
-      },
-      "boot_retries" : {
-        "type" : "long"
       },
       "boot_time" : {
         "type" : "text",
@@ -65,19 +44,7 @@
           }
         }
       },
-      "boot_warnings" : {
-        "type" : "long"
-      },
       "build_environment" : {
-        "type" : "text",
-        "fields" : {
-          "keyword" : {
-            "type" : "keyword",
-            "ignore_above" : 256
-          }
-        }
-      },
-      "defconfig" : {
         "type" : "text",
         "fields" : {
           "keyword" : {
@@ -95,37 +62,7 @@
           }
         }
       },
-      "dtb" : {
-        "type" : "text",
-        "fields" : {
-          "keyword" : {
-            "type" : "keyword",
-            "ignore_above" : 256
-          }
-        }
-      },
-      "dtb_addr" : {
-        "type" : "text",
-        "fields" : {
-          "keyword" : {
-            "type" : "keyword",
-            "ignore_above" : 256
-          }
-        }
-      },
-      "dtb_append" : {
-        "type" : "boolean"
-      },
       "endian" : {
-        "type" : "text",
-        "fields" : {
-          "keyword" : {
-            "type" : "keyword",
-            "ignore_above" : 256
-          }
-        }
-      },
-      "file_server_resource" : {
         "type" : "text",
         "fields" : {
           "keyword" : {
@@ -161,25 +98,7 @@
           }
         }
       },
-      "host" : {
-        "type" : "text",
-        "fields" : {
-          "keyword" : {
-            "type" : "keyword",
-            "ignore_above" : 256
-          }
-        }
-      },
-      "initrd" : {
-        "type" : "text",
-        "fields" : {
-          "keyword" : {
-            "type" : "keyword",
-            "ignore_above" : 256
-          }
-        }
-      },
-      "initrd_addr" : {
+      "id" : {
         "type" : "text",
         "fields" : {
           "keyword" : {
@@ -197,7 +116,7 @@
           }
         }
       },
-      "kernel" : {
+      "job_id" : {
         "type" : "text",
         "fields" : {
           "keyword" : {
@@ -206,7 +125,7 @@
           }
         }
       },
-      "kernel_image" : {
+      "kernel" : {
         "type" : "text",
         "fields" : {
           "keyword" : {
@@ -224,7 +143,7 @@
           }
         }
       },
-      "loadaddr" : {
+      "level" : {
         "type" : "text",
         "fields" : {
           "keyword" : {
@@ -233,7 +152,43 @@
           }
         }
       },
-      "mach" : {
+      "log_end_line" : {
+        "type" : "text",
+        "fields" : {
+          "keyword" : {
+            "type" : "keyword",
+            "ignore_above" : 256
+          }
+        }
+      },
+      "log_start_line" : {
+        "type" : "text",
+        "fields" : {
+          "keyword" : {
+            "type" : "keyword",
+            "ignore_above" : 256
+          }
+        }
+      },
+      "logged" : {
+        "type" : "text",
+        "fields" : {
+          "keyword" : {
+            "type" : "keyword",
+            "ignore_above" : 256
+          }
+        }
+      },
+      "measurement" : {
+        "type" : "text",
+        "fields" : {
+          "keyword" : {
+            "type" : "keyword",
+            "ignore_above" : 256
+          }
+        }
+      },
+      "name" : {
         "type" : "text",
         "fields" : {
           "keyword" : {
@@ -245,7 +200,25 @@
       "priority" : {
         "type" : "long"
       },
-      "version" : {
+      "result" : {
+        "type" : "text",
+        "fields" : {
+          "keyword" : {
+            "type" : "keyword",
+            "ignore_above" : 256
+          }
+        }
+      },
+      "suite" : {
+        "type" : "text",
+        "fields" : {
+          "keyword" : {
+            "type" : "keyword",
+            "ignore_above" : 256
+          }
+        }
+      },
+      "unit" : {
         "type" : "text",
         "fields" : {
           "keyword" : {

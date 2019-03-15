@@ -1,5 +1,5 @@
 {
-  "index_patterns": ["boot-*"],
+  "index_patterns": ["log-*"],
   "settings": {
     "number_of_shards": 1
   },
@@ -26,24 +26,6 @@
           }
         }
       },
-      "boot_log" : {
-        "type" : "text",
-        "fields" : {
-          "keyword" : {
-            "type" : "keyword",
-            "ignore_above" : 256
-          }
-        }
-      },
-      "boot_log_html" : {
-        "type" : "text",
-        "fields" : {
-          "keyword" : {
-            "type" : "keyword",
-            "ignore_above" : 256
-          }
-        }
-      },
       "boot_result" : {
         "type" : "text",
         "fields" : {
@@ -52,9 +34,6 @@
             "ignore_above" : 256
           }
         }
-      },
-      "boot_retries" : {
-        "type" : "long"
       },
       "boot_time" : {
         "type" : "text",
@@ -65,19 +44,7 @@
           }
         }
       },
-      "boot_warnings" : {
-        "type" : "long"
-      },
       "build_environment" : {
-        "type" : "text",
-        "fields" : {
-          "keyword" : {
-            "type" : "keyword",
-            "ignore_above" : 256
-          }
-        }
-      },
-      "defconfig" : {
         "type" : "text",
         "fields" : {
           "keyword" : {
@@ -95,37 +62,10 @@
           }
         }
       },
-      "dtb" : {
-        "type" : "text",
-        "fields" : {
-          "keyword" : {
-            "type" : "keyword",
-            "ignore_above" : 256
-          }
-        }
-      },
-      "dtb_addr" : {
-        "type" : "text",
-        "fields" : {
-          "keyword" : {
-            "type" : "keyword",
-            "ignore_above" : 256
-          }
-        }
-      },
-      "dtb_append" : {
-        "type" : "boolean"
+      "dt" : {
+        "type" : "date"
       },
       "endian" : {
-        "type" : "text",
-        "fields" : {
-          "keyword" : {
-            "type" : "keyword",
-            "ignore_above" : 256
-          }
-        }
-      },
-      "file_server_resource" : {
         "type" : "text",
         "fields" : {
           "keyword" : {
@@ -161,34 +101,16 @@
           }
         }
       },
-      "host" : {
-        "type" : "text",
-        "fields" : {
-          "keyword" : {
-            "type" : "keyword",
-            "ignore_above" : 256
-          }
-        }
-      },
-      "initrd" : {
-        "type" : "text",
-        "fields" : {
-          "keyword" : {
-            "type" : "keyword",
-            "ignore_above" : 256
-          }
-        }
-      },
-      "initrd_addr" : {
-        "type" : "text",
-        "fields" : {
-          "keyword" : {
-            "type" : "keyword",
-            "ignore_above" : 256
-          }
-        }
-      },
       "job" : {
+        "type" : "text",
+        "fields" : {
+          "keyword" : {
+            "type" : "keyword",
+            "ignore_above" : 256
+          }
+        }
+      },
+      "job_id" : {
         "type" : "text",
         "fields" : {
           "keyword" : {
@@ -206,15 +128,6 @@
           }
         }
       },
-      "kernel_image" : {
-        "type" : "text",
-        "fields" : {
-          "keyword" : {
-            "type" : "keyword",
-            "ignore_above" : 256
-          }
-        }
-      },
       "lab_name" : {
         "type" : "text",
         "fields" : {
@@ -224,7 +137,7 @@
           }
         }
       },
-      "loadaddr" : {
+      "lineno" : {
         "type" : "text",
         "fields" : {
           "keyword" : {
@@ -233,7 +146,16 @@
           }
         }
       },
-      "mach" : {
+      "lvl" : {
+        "type" : "text",
+        "fields" : {
+          "keyword" : {
+            "type" : "keyword",
+            "ignore_above" : 256
+          }
+        }
+      },
+      "msg" : {
         "type" : "text",
         "fields" : {
           "keyword" : {
@@ -244,15 +166,6 @@
       },
       "priority" : {
         "type" : "long"
-      },
-      "version" : {
-        "type" : "text",
-        "fields" : {
-          "keyword" : {
-            "type" : "keyword",
-            "ignore_above" : 256
-          }
-        }
       }
     }
   }
