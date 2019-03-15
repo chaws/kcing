@@ -13,5 +13,6 @@ do
     fi
     sleep 2
     ((attempts++))
+    echo "kcing is waiting for elasticsearch to be ready ($attempts/60)"
 done
 exit $attempts
