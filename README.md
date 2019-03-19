@@ -101,18 +101,15 @@ Important settings that make kcing work properly are described below, they're pr
 ### Logstash/ElasticSearch settings
 - `ES_LAVA` and `ES_BUILD` urls where to post lava and build data to ES, respectivelly. This is usually a running Logstash instance, using [kcing_pipeline.conf](kcing_pipeline.conf) pipeline configuration.
 - `ES_MAX_RETRIES` how many retries to post data to `ES_LAVA` or `ES_BUILD`, defaults to `3`
-- `ES_LOAD_INTERVAL` is the number of seconds to sleep after every `LS_PIPELINE_BATCH_SIZE` objects are sent to ES, thus reducing load on logstash, defaults to `5`
+- `ES_LOAD_INTERVAL` is the number of seconds to sleep after every `LS_PIPELINE_BATCH_SIZE` objects are sent to ES, thus reducing load on logstash, defaults to `3`
 - `LS_HOME` home is logstash's home folder, needed when customizing logstash `pipelines.yml` file
 - `LS_QUEUE_TYPE` is lostash's queueing type: persisted (disk) or memory (ram), defaults to `persisted`
 - `LS_PATH_CONFIG` is the pipeline configuration file path, defaults to [kcing_pipeline.conf](kcing_pipeline.conf)
-- `LS_QUEUE_MAX_EVENTS` is the maximum number of unread events from the queue when `LS_QUEUE_TYPE` is set to `persisted`, defaults to `200`
-- `LS_PIPELINE_BATCH_SIZE` is the maximum number of events a worker will collect from `inputs` section of the configuration file before starting `filters` and `outputs`, defaults to `100`
-- `DRP_DAYS` is the number of days to keep processed data, defaults to `3`. 
+- `LS_NUM_WORKERS` is the number of Logstash parallel workers, defaults to `1`
+- `LS_PIPELINE_BATCH_SIZE` is the maximum number of events a worker will collect from `inputs` section of the configuration file before starting `filters` and `outputs`, defaults to `1`
+- `DRP_DAYS` is the number of days to keep processed data, defaults to `4`. 
 
-
-## KernelCI matrix
-
-As kernelci is intended to build, boot and test the maximum combinations possible of Linux Kernel trees. Each tree has selected branchs to be monitored.  
+Logstash is also set to use at most 8g of RAM, and [this is why](LOGSTASH_SETUP.md).
 
 ## What this is not
 
