@@ -193,10 +193,7 @@ def _send_to_es(_type, objs, path=data_dir):
     consecutive_fails = 0
     result_before = True
     cmdline_objs = type(objs) is list
-
-    # The amount of documents to send to Logstash
-    # depends on the number of workers and the amount of load each worker can handle
-    batch_size = settings.LS_PIPELINE_BATCH_SIZE * settings.LS_NUM_WORKERS
+    lava_batch_size = 10
 
     if cmdline_objs:
         logger.info('Command line detected! Duplicates might exist for %i %s index' % (len(objs), _type))
@@ -215,11 +212,12 @@ def _send_to_es(_type, objs, path=data_dir):
                 return passed, failed
         result_before = result
 
-        # This controls the amount of load to send logstash
-        # let's try to send the same of events as logstash's LS_PIPELINE_BATCH_SIZE setting
-        if (len(passed) + len(failed)) % batch_size == 0:
-            logger.info('Wait a bit to let logstash digest more %i events. Sleeping for %i seconds' % (batch_size, settings.ES_LOAD_INTERVAL))
-            time.sleep(settings.ES_LOAD_INTERVAL)
+        # Controls amount of load to send logstash
+        sent = len(passed) + len(failed)
+        if _type == 'lava':
+            if (sent % lava_batch_size) == 0:
+                logger.info('Wait a bit to let logstash digest more %i events. Sleeping for %i seconds' % (10, settings.ES_LOAD_INTERVAL))
+                time.sleep(settings.ES_LOAD_INTERVAL)
 
     # Save successfull objs and delete the ones processed correctly
     if not cmdline_objs:
