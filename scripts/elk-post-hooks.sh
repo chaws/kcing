@@ -34,7 +34,4 @@ then
 
     # Restore 
     ./kcing.py setup_kbn
-
-    chmod +x ./scripts/wait_logstash.sh
-    ./scripts/wait_logstash.sh
 fi
