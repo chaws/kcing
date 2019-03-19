@@ -22,7 +22,6 @@ RUN set -x \
  && ./kcing.py setup_ls \
  && sed -i 's/-Xmx.*/-Xmx8g/' /opt/logstash/config/jvm.options \
  && service logstash start \
- && echo "settings = {'KCING_DB': '/var/lib/elasticsearch/kcing.db'}" > local_settings.py \
  && cp scripts/elk-pre-hooks.sh /usr/local/bin/ \
  && chmod +x /usr/local/bin/elk-pre-hooks.sh \
  && cp scripts/elk-post-hooks.sh /usr/local/bin/ \
