@@ -37,7 +37,4 @@ then
 
     chmod +x ./scripts/wait_logstash.sh
     ./scripts/wait_logstash.sh
-
-    echo "First time only: feeding ElasticSearch with 2500-ish objects. Go grab a cup of coffee..."
-    $(./kcing.py feed_es --how-many 100 || exit 0)
 fi
