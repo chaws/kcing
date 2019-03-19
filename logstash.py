@@ -18,7 +18,7 @@ logger = logging.getLogger()
 def _apply_setup(content):
     config = {
         'queue_type': settings.LS_QUEUE_TYPE,
-        'max_events': settings.LS_QUEUE_MAX_EVENTS,
+        'num_workers': settings.LS_NUM_WORKERS,
         'batch_size': settings.LS_PIPELINE_BATCH_SIZE,
         'path_config': settings.LS_PATH_CONFIG,
     }
@@ -37,8 +37,7 @@ def _apply_setup(content):
   path.config: "%(path_config)s"
   pipeline.batch.size: %(batch_size)i
   queue.type: %(queue_type)s
-  queue.max_events: %(max_events)i
-  pipeline.workers: 16
+  pipeline.workers: %(num_workers)i
 """
     return new_config % config
 

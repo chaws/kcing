@@ -26,7 +26,7 @@ ES_BOOT  = env_or_local('ES_BOOT', 'http://localhost:8007')
 ES_MAX_RETRIES = env_or_local('ES_MAX_RETRIES', 3)
 
 # Number of seconds to sleep after every LS_PIPELINE_BATCH_SIZE objects are sent to ES, thus reducing load on logstash
-ES_LOAD_INTERVAL = env_or_local('ES_LOAD_INTERVAL', 5)
+ES_LOAD_INTERVAL = env_or_local('ES_LOAD_INTERVAL', 3)
 
 # Logstash settings
 # Home folder of logstash
@@ -38,9 +38,11 @@ LS_QUEUE_TYPE           = env_or_local('LS_QUEUE_TYPE', 'persisted')
 # Pipeline configuration file path, defaults to kcing repo
 LS_PATH_CONFIG          = env_or_local('LS_PATH_CONFIG', join(dirname(__file__), "kcing_pipeline.conf"))
 
-# Number of events logstash will handle in the 'input' section before going to 'filters'
-LS_QUEUE_MAX_EVENTS     = env_or_local('LS_QUEUE_MAX_EVENTS', 20)
-LS_PIPELINE_BATCH_SIZE  = env_or_local('LS_PIPELINE_BATCH_SIZE', 10)
+# Number of documents each worker will handle at a time
+LS_PIPELINE_BATCH_SIZE  = env_or_local('LS_PIPELINE_BATCH_SIZE', 1)
+
+# Number of workers logstash will span to parallel process events
+LS_NUM_WORKERS = env_or_local('LS_NUM_WORKERS', 1)
 
 # Database to store progress of processed lavas/builds
 KCING_DB = env_or_local('KCING_DB', 'kcing.db')
