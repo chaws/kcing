@@ -22,8 +22,6 @@ RUN set -x \
  && ./kcing.py setup_ls \
  && sed -i 's/-Xmx.*/-Xmx8g/' /opt/logstash/config/jvm.options \
  && service logstash start \
- && cp scripts/elk-pre-hooks.sh /usr/local/bin/ \
- && chmod +x /usr/local/bin/elk-pre-hooks.sh \
  && cp scripts/elk-post-hooks.sh /usr/local/bin/ \
  && chmod +x /usr/local/bin/elk-post-hooks.sh
 
