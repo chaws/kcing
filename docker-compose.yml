@@ -14,7 +14,7 @@ version: '2'
 
 services:
   elk:
-    image: kcing/elk:0.0.7
+    image: kcing/elk:0.0.8
     ports:
       - "5601:5601"
       - "9200:9200"
