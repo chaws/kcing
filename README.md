@@ -10,11 +10,13 @@ With a build in hand, kernelci's jenkins will queue builds for booting/testing t
 
 ## KCING
 
-KCING currently acts as an alternative visualization tool for kernelci's jobs. Note from the image above that both `build.json` and `lava-*.json` files are also being sent to an extra stack. This is being worked out with kernelci maintainers to be available in the future. The files are received by a [Losgstash](https://www.elastic.co/products/logstash) instance, configured with [kcing_pipeline.conf](kcing_pipeline.conf).
+KCING (KernelCI New Generation [of the front end]) currently acts as an alternative visualization tool for kernelci's jobs. Note from the image above that both `build.json` and `lava-*.json` files are also being sent to an extra stack. This is being worked out with kernelci maintainers to be available in the future. The files are received by a [Losgstash](https://www.elastic.co/products/logstash) instance, configured with [kcing_pipeline.conf](kcing_pipeline.conf).
 
-During prototyping stage, we wrote `kcing.py` to emulate KernelCI Builders and Labs. It'll, daily, go to kernelci ajax api, query the past two days worth of boots and builds and use it to feed a running ElasticSearch instance. 
+During prototyping stage, we wrote `kcing.py` to emulate KernelCI Builders and Labs. By running `./kcing.py feed_es`, it queries kernelci ajax api for the past two days worth of boots and builds and use it to feed a running ElasticSearch instance in a docker container.
 
 ### Requirements
+
+**NOTE:** All commands are to be run in your computer. The docker facility is just a great DevOps convenience to get things up and running in any environment.
 
 The kcing docker container runs ElasticSearch as the main program, therefore it requires a setting on the host machine so that the container runs properly. Based on the [official documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html#vm-max-map-count), you need to change `vm-max-map-count` setting:
 
@@ -37,25 +39,9 @@ And wait a few seconds/minutes for the whole thing fire up. Keep in mind that EL
 
 Since kcing deals with the ELK stack, this means there are 3 different programs to keep track of configurations and running states. Use commands below for everyday management of your work.
 
-#### Backup kibana objects
+#### Getting data from kernelci
 
-This might be the most important command to use because it allows different instances of kcing ELK stack to share the same visualizations. It works by exporting kibana's mappings and data straight out from ElasticSearch:
-
-    ./kcing.py backup_kbn
-
-That's it! It'll overwrite [kcing.kibana](kcing.kibana) (data) and [kibana.json](mapping_templates/kibana.json) (mappings), so please make sure to commit them and push it to the remote git server.
-
-#### Restore kibana objects
-
-This command is already run everytime the docker container is started, and it works as the opposite of the previous command:
-
-    ./kcing.py setup_kbn
-
-Please note that it *overwrites* your kibana's instance data and mappings. Be careful to run this command because you may lose data that you've been working on.
-
-#### Get more data from kernelci
-
-There's already about 2500 objects in the original container, but you're likely to get more data to work on. The script below does this the hard way, by querying kernelci website's raw data for boots and builds, working itself out to retrieve lava files from [storage.kernelci.org](https://storage.kernelci.org). That being said, availability of data depends on kernelci's websites.
+The script below queries kernelci apis for boots and builds, working itself out to retrieve lava files from [storage.kernelci.org](https://storage.kernelci.org). That being said, availability of data depends on kernelci's websites.
 
 Kcing comes with two ways of getting data: one that saves to `samples` directory, and another one that insert all data directly to ElasticSearch.
 
@@ -67,20 +53,38 @@ Kcing inserts data by downloading a user-defined number of json files from *stor
 
 By default it'll crawl kernelci website and get the past two days worth of data. If you wish to limit that number, do so by passing `--how-many 42` to specify a number. Depending on the amount selected, it might take a while to download everything. Enable debugging `-d` in order to get more info on the screen during download.
 
-It might be useful to get daily updates so that your instance would have same data as kernelci. Kcing has duplicate check feature that prevent downloading and adding files that were previously downloaded. Installing a cron job might be the way to go, just make sure kcing runs in its own directory. Also, logging what happened is possible by using `-l log_file` to save execution logs.
+**TIP 1:** It might be useful to get daily updates so that your instance would have same data as kernelci. Kcing checks for duplicates, preventing it from downloading and adding files that were previously downloaded. Installing a cron job might be the way to go, just make sure kcing runs in its own directory. Also, logging what happened is possible by using `-l log_file` to save execution logs.
+
+**TIP 2:** As kernelci maintainers already do, it might be convenient to remove old data as time passes. Do that by running `./kcing.py drp [--drp-days N]`. It's convenient to install this command right after the cron in the tip above.
 
 ##### Downloading samples
 
-This is useful want one needs to work on a single file, or sets of files repetitively. The data will be stored in `samples` folder.
+This is useful when one needs to work on a single file, or sets of files repetitively. The data will be stored in `samples` folder, but won't be inserted into the ElasticSearch instance.
 
     ./kcing.py gen_samples
 
 Similar to first strategy, by default it gets past two days of data. Limit the amount of data by using `--sample_size 42` for your needs.
 
+#### Backup kibana objects
+
+This might be the most important command to use because it allows different instances of kcing ELK stack to share the same visualizations. It works by exporting kibana's mappings and data straight out from ElasticSearch:
+
+    ./kcing.py backup_kbn
+
+That's it! It'll overwrite [kcing.kibana](kcing.kibana) (data) and [kibana.json](mapping_templates/kibana.json) (mappings), so please make sure to commit them and push it to the remote git server.
+
+#### Restore kibana objects
+
+This reads [kcing.kibana](kcing.kibana) and [kibana.json](mapping_templates/kibana.json) and applies into the running ElasticSearch. Please note that this docker setup uses docker volumes, so ElasticSearch/Kibana data will be kept even if the container is stopped/removed.
+
+    ./kcing.py setup_kbn
+
+Please note that it *overwrites* your kibana's instance data and mappings. Be careful to run this command because you may lose data that you've been working on.
+
 ### List of available commands
 
 - `./kcing.py feed_es [--how-many=N]` will attempt to download N (or last two days worth of data) lava files and builds from kernelci and submit them to a running ELK stack. Note that kcing runs a local sqlite database to keep track of what files were processed already so that duplicates don't exist in ElasticSearch. If you wish to clean this database, see `./kcing.py drp`.
-- `./kcing.py gen_samples [--sample-size=N]` will attempt to download N (or last two days worth of data) lava files and builds recorded in kernelci website. Samples are stored in `samples` directory. 
+- `./kcing.py gen_samples [--sample-size=N]` will attempt to download N (or last two days worth of data) lava files and builds recorded in kernelci website. Samples are stored in `samples` directory.
 - `./kcing.py drp [--drp-days N]` (data rentention policy) will remove the N (of defaults to `DRP_DAYS`) last days of processed data
 - `./kcing.py test` will run available tests. For now, only `kernelci` tests are available
 
