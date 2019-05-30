@@ -13,7 +13,17 @@ logger = logging.getLogger()
 kibana_filename = 'kcing.kibana'
 kibana_mapping = 'mapping_templates/kibana.json'
 es_host = settings.ES_HOST
+kb_url = settings.KB_URL
+kb_hidden_url = '<kibana-url>'
 headers = {'Content-Type': 'application/json'}
+
+
+def _hide_kibana_url(content):
+    return content.replace(kb_url, kb_hidden_url)
+
+
+def _replace_kibana_url(content):
+    return content.replace(kb_hidden_url, kb_url)
 
 
 def backup(args):
@@ -46,7 +56,8 @@ def backup(args):
         return
 
     # Save data to kcing.kibana
-    objects = json.loads(data_res.content.decode())['hits']['hits']
+    objects_str = _hide_kibana_url(data_res.content.decode())
+    objects = json.loads(objects_str)['hits']['hits']
     with open(kibana_filename, 'w') as fh:
         json.dump(objects, fh, sort_keys = True, indent = 2)
     logger.info('Kibana objects saved to %s' % (kibana_filename))
@@ -65,7 +76,8 @@ def setup(args):
     
     objects = None
     with open(kibana_filename, 'r') as fh:
-        objects = json.load(fh)
+        objects_str = _replace_kibana_url(fh.read())
+        objects = json.loads(objects_str)
 
     if objects == None or len(objects) == 0:
         logger.error('Failed to read %s or it is empty' % (kibana_filename))

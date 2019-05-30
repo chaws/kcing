@@ -49,3 +49,6 @@ KCING_DB = env_or_local('KCING_DB', 'kcing.db')
 
 # Number of days to keep data in ES and kcing.db
 DRP_DAYS = env_or_local('DRP_DAYS', 4)
+
+# Base url for the kibana site
+KB_URL = env_or_local('KB_URL', 'http://localhost:5601/app/kibana')
