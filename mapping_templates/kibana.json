@@ -106,6 +106,18 @@
               }
             },
             "type": "text"
+          },
+          "doc_table:hideTimeColumn": {
+            "type": "boolean"
+          },
+          "xPack:defaultAdminEmail": {
+            "fields": {
+              "keyword": {
+                "ignore_above": 256,
+                "type": "keyword"
+              }
+            },
+            "type": "text"
           }
         }
       },
