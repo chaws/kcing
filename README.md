@@ -71,6 +71,8 @@ This might be the most important command to use because it allows different inst
 
     ./kcing.py backup_kbn
 
+**NOTE:** some of the objects created in kibana make use of the local instance url address. Make sure that this is being set under settings.py with `KB_URL` variable.
+
 That's it! It'll overwrite [kcing.kibana](kcing.kibana) (data) and [kibana.json](mapping_templates/kibana.json) (mappings), so please make sure to commit them and push it to the remote git server.
 
 #### Restore kibana objects
@@ -78,6 +80,8 @@ That's it! It'll overwrite [kcing.kibana](kcing.kibana) (data) and [kibana.json]
 This reads [kcing.kibana](kcing.kibana) and [kibana.json](mapping_templates/kibana.json) and applies into the running ElasticSearch. Please note that this docker setup uses docker volumes, so ElasticSearch/Kibana data will be kept even if the container is stopped/removed.
 
     ./kcing.py setup_kbn
+
+**NOTE:** some of the objects created in kibana make use of the local instance url address. Make sure that this is being set under settings.py with `KB_URL` variable.
 
 Please note that it *overwrites* your kibana's instance data and mappings. Be careful to run this command because you may lose data that you've been working on.
 
@@ -114,6 +118,9 @@ Important settings that make kcing work properly are described below, they're pr
 - `DRP_DAYS` is the number of days to keep processed data, defaults to `4`. 
 
 Logstash is also set to use at most 8g of RAM, and [this is why](LOGSTASH_SETUP.md).
+
+### Kibana settings
+- `KB_URL` is the url where kibana is running. Default value is `http://localhost:5601/app/kibana`. This setting is very important when running `backup_kbn` and `setup_kbn` because some of kibana objects created use scripted fields in order to create links between dashboards. These links are global, therefore need to contain the scheme, host, port and path of your kibana set up.
 
 ## What this is not
 
